@@ -1,0 +1,33 @@
+# Valorant Agents Database
+
+AGENTS = [
+    {"name": "Jett", "gender": "Female", "specialty": "Dash, Smoke", "role": "Duelist", "nationality": "Asia", "color_palette": "Blue and White", "image": "icons/Jett_icon.png"},
+    {"name": "Phoenix", "gender": "Male", "specialty": "Molotov, Heal", "role": "Duelist", "nationality": "Europe", "color_palette": "Orange and Black", "image": "icons/Phoenix_icon.png"},
+    {"name": "Sage", "gender": "Female", "specialty": "Heal, Resurrect", "role": "Sentinel", "nationality": "Asia", "color_palette": "Green and White", "image": "icons/Sage_icon.png"},
+    {"name": "Brimstone", "gender": "Male", "specialty": "Smoke, Molotov", "role": "Controller", "nationality": "North America", "color_palette": "Brown and Yellow", "image": "icons/Brimstone_icon.png"},
+    {"name": "Cypher", "gender": "Male", "specialty": "Trap, Surveillance", "role": "Sentinel", "nationality": "Africa", "color_palette": "Beige and Blue", "image": "icons/Cypher_icon.png"},
+    {"name": "Reyna", "gender": "Female", "specialty": "Blind, Heal", "role": "Duelist", "nationality": "South America", "color_palette": "Purple and Black", "image": "icons/Reyna_icon.png"},
+    {"name": "Killjoy", "gender": "Female", "specialty": "Trap, Area Control", "role": "Sentinel", "nationality": "Europe", "color_palette": "Yellow and Green", "image": "icons/Killjoy_icon.png"},
+    {"name": "Sova", "gender": "Male", "specialty": "Reveal, Shock", "role": "Initiator", "nationality": "Europe", "color_palette": "Blue and Gray", "image": "icons/Sova_icon.png"},
+    {"name": "Omen", "gender": "Male", "specialty": "Teleport, Blind", "role": "Controller", "nationality": "Unknown", "color_palette": "Dark Blue and Purple", "image": "icons/Omen_icon.png"},
+    {"name": "Raze", "gender": "Female", "specialty": "Explosives, Grenade", "role": "Duelist", "nationality": "South America", "color_palette": "Orange and Red", "image": "icons/Raze_icon.png"},
+    {"name": "Breach", "gender": "Male", "specialty": "Stun, Blind", "role": "Initiator", "nationality": "Europe", "color_palette": "Orange and Silver", "image": "icons/Breach_icon.png"},
+    {"name": "Skye", "gender": "Female", "specialty": "Heal, Blind", "role": "Initiator", "nationality": "Australia", "color_palette": "Green and Brown", "image": "icons/Skye_icon.png"},
+    {"name": "Yoru", "gender": "Male", "specialty": "Teleport, Blind", "role": "Duelist", "nationality": "Asia", "color_palette": "Blue and Black", "image": "icons/Yoru_icon.png"},
+    {"name": "Astra", "gender": "Female", "specialty": "Gravity, Area Control", "role": "Controller", "nationality": "Africa", "color_palette": "Purple and Gold", "image": "icons/Astra_icon.png"},
+    {"name": "KAY/O", "gender": "Non-binary", "specialty": "Suppress, Blind", "role": "Initiator", "nationality": "Unknown", "color_palette": "Gray and Blue", "image": "icons/KAYO_icon.png"},
+    {"name": "Chamber", "gender": "Male", "specialty": "Trap, Teleport", "role": "Sentinel", "nationality": "Europe", "color_palette": "Gold and White", "image": "icons/Chamber_icon.png"},
+    {"name": "Neon", "gender": "Female", "specialty": "Dash, Stun", "role": "Duelist", "nationality": "Asia", "color_palette": "Blue and Yellow", "image": "icons/Neon_icon.png"},
+    {"name": "Fade", "gender": "Female", "specialty": "Reveal, Decay", "role": "Initiator", "nationality": "Europe", "color_palette": "Black and Teal", "image": "icons/Fade_icon.png"},
+    {"name": "Harbor", "gender": "Male", "specialty": "Wall, Area Control", "role": "Controller", "nationality": "Asia", "color_palette": "Teal and Gold", "image": "icons/Harbor_icon.png"},
+    {"name": "Gekko", "gender": "Male", "specialty": "Companions, Area Control", "role": "Initiator", "nationality": "North America", "color_palette": "Green and Purple", "image": "icons/Gekko_icon.png"},
+    {"name": "Iso", "gender": "Male", "specialty": "Shield, Area Control", "role": "Duelist", "nationality": "Asia", "color_palette": "Gray and Orange", "image": "icons/Iso_icon.png"},
+    {"name": "Clove", "gender": "Non-binary", "specialty": "Decay, Resurrect", "role": "Controller", "nationality": "Europe", "color_palette": "Dark Green and Silver", "image": "icons/Clove_icon.png"},
+    {"name": "Tejo", "gender": "Male", "specialty": "Explosives, Zone Control", "role": "Initiator", "nationality": "South America", "color_palette": "Red and Gold", "image": "icons/Tejo_icon.png"},
+    {"name": "Vyse", "gender": "Female", "specialty": "Thorns, Zone Control", "role": "Sentinel", "nationality": "Unknown", "color_palette": "Pink and Violet", "image": "icons/Vyse_icon.png"},
+    {"name": "Viper", "gender": "Female", "specialty": "Poison, Area Control", "role": "Controller", "nationality": "North America", "color_palette": "Green and Black", "image": "icons/Viper_icon.png"},
+    {"name": "Deadlock", "gender": "Female", "specialty": "Restraint, Area Control", "role": "Sentinel", "nationality": "Europe", "color_palette": "Gray and White", "image": "icons/Deadlock_icon.png"},
+    {"name": "Waylay", "gender": "Female", "specialty": "Rewind, Dash", "role": "Duelist", "nationality": "Asia", "color_palette": "Yellow and Black", "image": "icons/Waylay_icon.png"},
+    {"name": "Veto", "gender": "Male", "specialty": "Lockdown, Area Denial", "role": "Sentinel", "nationality": "Africa", "color_palette": "Deep Blue and Black", "image": "icons/Veto_icon.png"},
+    {"name": "Miks", "gender": "Male", "specialty": "Healing, Zone Control", "role": "Controller", "nationality": "Europe", "color_palette": "Yellow and Purple", "image": "icons/Miks_icon.png"}
+]

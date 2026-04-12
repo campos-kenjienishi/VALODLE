@@ -1,0 +1,176 @@
+{
+  "Astra": {
+    "ultimate_ally_line": "\"World divided!\"",
+    "ultimate_enemy_line": "\"You are divided!\"",
+    "ultimate_ally_audio": "audio/Astra/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Astra/ultimate_enemy.mpeg"
+  },
+  "Breach": {
+    "ultimate_ally_line": "\"Let's go!\"",
+    "ultimate_enemy_line": "\"Off your feet!\"",
+    "ultimate_ally_audio": "audio/Breach/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Breach/ultimate_enemy.mpeg"
+  },
+  "Brimstone": {
+    "ultimate_ally_line": "\"Open up the sky!\"",
+    "ultimate_enemy_line": "\"Prepare for hellfire!\"",
+    "ultimate_ally_audio": "audio/Brimstone/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Brimstone/ultimate_enemy.mpeg"
+  },
+  "Chamber": {
+    "ultimate_ally_line": "\"They are so dead!\"",
+    "ultimate_enemy_line": "\"You want to play? Let's play.\"",
+    "ultimate_ally_audio": "audio/Chamber/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Chamber/ultimate_enemy.mpeg"
+  },
+  "Clove": {
+    "ultimate_ally_line": "\"Back like I never left!\"",
+    "ultimate_enemy_line": "\"Ya had your fun, my turn!\"",
+    "ultimate_ally_audio": "audio/Clove/ultimate_ally.mp3",
+    "ultimate_enemy_audio": "audio/Clove/ultimate_enemy.mp3"
+  },
+  "Cypher": {
+    "ultimate_ally_line": "\"Where is everyone hiding?\"",
+    "ultimate_enemy_line": "\"I know exactly where you are!\"",
+    "ultimate_ally_audio": "audio/Cypher/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Cypher/ultimate_enemy.mpeg"
+  },
+  "Deadlock": {
+    "ultimate_ally_line": "\"Pull them to their grave!\"",
+    "ultimate_enemy_line": "\"My territory, my rules!\"",
+    "ultimate_ally_audio": "audio/Deadlock/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Deadlock/ultimate_enemy.mpeg"
+  },
+  "Fade": {
+    "ultimate_ally_line": "\"Nightmare, take them!\"",
+    "ultimate_enemy_line": "\"Face your fear!\"",
+    "ultimate_ally_audio": "audio/Fade/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Fade/ultimate_enemy.mpeg"
+  },
+  "Gekko": {
+    "ultimate_ally_line": "\"It's all you, lil' homie!\"",
+    "ultimate_enemy_line": "\"Oye! Monster on the loose!\"",
+    "ultimate_ally_audio": "audio/Gekko/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Gekko/ultimate_enemy.mpeg"
+  },
+  "Harbor": {
+    "ultimate_ally_line": "\"Let's turn the tide!\"",
+    "ultimate_enemy_line": "\"Into the deep!\"",
+    "ultimate_ally_audio": "audio/Harbor/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Harbor/ultimate_enemy.mpeg"
+  },
+  "Iso": {
+    "ultimate_ally_line": "\"No distractions!\"",
+    "ultimate_enemy_line": "\"It's you and me!\"",
+    "ultimate_ally_audio": "audio/Iso/ultimate_ally.mp3",
+    "ultimate_enemy_audio": "audio/Iso/ultimate_enemy.mp3"
+  },
+  "Jett": {
+    "ultimate_ally_line": "\"Watch this!\"",
+    "ultimate_enemy_line": "\"Get out of my way!\"",
+    "ultimate_ally_audio": "audio/Jett/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Jett/ultimate_enemy.mpeg"
+  },
+  "KAY/O": {
+    "ultimate_ally_line": "\"No one walks away!\"",
+    "ultimate_enemy_line": "\"You are powerless!\"",
+    "ultimate_ally_audio": "audio/KAY/O/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/KAY/O/ultimate_enemy.mpeg"
+  },
+  "Killjoy": {
+    "ultimate_ally_line": "\"Initiated!\"",
+    "ultimate_enemy_line": "\"You should run.\"",
+    "ultimate_ally_audio": "audio/Killjoy/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Killjoy/ultimate_enemy.mpeg"
+  },
+  "Miks": {
+    "ultimate_ally_line": "\"Right here, right now!\"",
+    "ultimate_enemy_line": "\"Listen to this!\"",
+    "ultimate_ally_audio": "audio/Miks/ultimate_ally.mp3",
+    "ultimate_enemy_audio": "audio/Miks/ultimate_enemy.mp3"
+  },
+  "Neon": {
+    "ultimate_ally_line": "\"Here we go!\"",
+    "ultimate_enemy_line": "\"Hoy! I'm pissed!\"",
+    "ultimate_ally_audio": "audio/Neon/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Neon/ultimate_enemy.mpeg"
+  },
+  "Omen": {
+    "ultimate_ally_line": "\"Watch them run.\"",
+    "ultimate_enemy_line": "\"Scatter!\"",
+    "ultimate_ally_audio": "audio/Omen/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Omen/ultimate_enemy.mpeg"
+  },
+  "Phoenix": {
+    "ultimate_ally_line": "\"C'mon, let's go!\"",
+    "ultimate_enemy_line": "\"Joke's over, you're dead!\"",
+    "ultimate_ally_audio": "audio/Phoenix/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Phoenix/ultimate_enemy.mpeg"
+  },
+  "Raze": {
+    "ultimate_ally_line": "\"Here comes the party!\"",
+    "ultimate_enemy_line": "\"Fire in the hole!\"",
+    "ultimate_ally_audio": "audio/Raze/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Raze/ultimate_enemy.mpeg"
+  },
+  "Reyna": {
+    "ultimate_ally_line": "\"They will cower!\"",
+    "ultimate_enemy_line": "\"The hunt begins!\"",
+    "ultimate_ally_audio": "audio/Reyna/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Reyna/ultimate_enemy.mpeg"
+  },
+  "Sage": {
+    "ultimate_ally_line": "\"Your duty is not over!\"",
+    "ultimate_enemy_line": "\"You will not kill my allies!\"",
+    "ultimate_ally_audio": "audio/Sage/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Sage/ultimate_enemy.mpeg"
+  },
+  "Skye": {
+    "ultimate_ally_line": "\"Seek them out!\"",
+    "ultimate_enemy_line": "\"I've got your trail!\"",
+    "ultimate_ally_audio": "audio/Skye/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Skye/ultimate_enemy.mpeg"
+  },
+  "Sova": {
+    "ultimate_ally_line": "\"I, am the hunter!\"",
+    "ultimate_enemy_line": "\"Nowhere to run!\"",
+    "ultimate_ally_audio": "audio/Sova/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Sova/ultimate_enemy.mpeg"
+  },
+  "Tejo": {
+    "ultimate_ally_line": "\"This is how it ends!\"",
+    "ultimate_enemy_line": "\"Go ahead, stand your ground!\"",
+    "ultimate_ally_audio": "audio/Tejo/ultimate_ally.mp3",
+    "ultimate_enemy_audio": "audio/Tejo/ultimate_enemy.mp3"
+  },
+  "Veto": {
+    "ultimate_ally_line": "\"Turn it all to dust!\"",
+    "ultimate_enemy_line": "\"Not another step!\"",
+    "ultimate_ally_audio": "audio/Veto/ultimate_ally.mp3",
+    "ultimate_enemy_audio": "audio/Veto/ultimate_enemy.mp3"
+  },
+  "Viper": {
+    "ultimate_ally_line": "\"Don't get in my way!\"",
+    "ultimate_enemy_line": "\"Welcome to my world!\"",
+    "ultimate_ally_audio": "audio/Viper/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Viper/ultimate_enemy.mpeg"
+  },
+  "Vyse": {
+    "ultimate_ally_line": "\"Bring me the arsenal!\"",
+    "ultimate_enemy_line": "\"Adapt or die!\"",
+    "ultimate_ally_audio": "audio/Vyse/ultimate_ally.mp3",
+    "ultimate_enemy_audio": "audio/Vyse/ultimate_enemy.mp3"
+  },
+  "Waylay": {
+    "ultimate_ally_line": "\"Line 'em up, I'm going in!\"",
+    "ultimate_enemy_line": "\"One by one!\"",
+    "ultimate_ally_audio": "audio/Waylay/ultimate_ally.mp3",
+    "ultimate_enemy_audio": "audio/Waylay/ultimate_enemy.mp3"
+  },
+  "Yoru": {
+    "ultimate_ally_line": "\"I'll handle this!\"",
+    "ultimate_enemy_line": "\"Who's next?\"",
+    "ultimate_ally_audio": "audio/Yoru/ultimate_ally.mpeg",
+    "ultimate_enemy_audio": "audio/Yoru/ultimate_enemy.mpeg"
+  }
+}

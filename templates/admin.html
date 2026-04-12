@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Valodle | Admin</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('asset_file', filename='icons/valodleicon.ico') }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='valodle.css') }}" />
+  </head>
+  <body>
+    <div class="bg-glow bg-glow-left"></div>
+    <div class="bg-glow bg-glow-right"></div>
+
+    <main class="home-shell admin-shell">
+      <section class="panel admin-head">
+        <div>
+          <p class="eyebrow">Valodle Admin</p>
+          <h1 class="admin-title">Content Manager</h1>
+          <p class="home-subtitle">Add agents and skill-hint metadata without editing code files.</p>
+        </div>
+        <div class="admin-actions">
+          <a class="ghost-button" href="{{ url_for('home') }}">Back Home</a>
+        </div>
+      </section>
+
+      {% if message %}
+      <section class="panel admin-message">
+        <strong>{{ message }}</strong>
+      </section>
+      {% endif %}
+
+      <section class="admin-grid">
+        <article class="panel admin-card">
+          <h2 class="panel-title">Add or Update Agent</h2>
+          <form class="admin-form" method="post" action="{{ url_for('admin_save_agent') }}">
+            <label>Name<input type="text" name="name" required /></label>
+            <label>Gender<input type="text" name="gender" /></label>
+            <label>Role<input type="text" name="role" /></label>
+            <label>Nationality / Continent<input type="text" name="nationality" /></label>
+            <label>Specialty<input type="text" name="specialty" placeholder="Dash, Smoke" /></label>
+            <label>Color Palette<input type="text" name="color_palette" /></label>
+            <label>Portrait Path<input type="text" name="image" placeholder="icons/Jett/Jett_icon.png" /></label>
+            <label>Voice Line<input type="text" name="voice_line" /></label>
+            <label>Voice Audio Path<input type="text" name="voice_audio" placeholder="audio/agent_line.mp3" /></label>
+            <button class="primary-button" type="submit">Save Agent</button>
+          </form>
+        </article>
+
+        <article class="panel admin-card">
+          <h2 class="panel-title">Skill Hint by Keybind</h2>
+          <form class="admin-form" method="post" action="{{ url_for('admin_save_skill_hint') }}">
+            <label>Agent
+              <select name="agent_name" required>
+                <option value="">Select agent</option>
+                {% for agent in agents %}
+                <option value="{{ agent.name }}">{{ agent.name }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label>Keybind
+              <select name="keybind" required>
+                <option value="">Select key</option>
+                <option value="C">C (Basic)</option>
+                <option value="Q">Q (Basic)</option>
+                <option value="E">E (Signature)</option>
+                <option value="X">X (Ultimate)</option>
+              </select>
+            </label>
+            <label>Function Hint<input type="text" name="function_hint" placeholder="Concuss, Displacement" /></label>
+            <button class="primary-button" type="submit">Save Skill Hint</button>
+          </form>
+        </article>
+      </section>
+
+      <section class="panel admin-list">
+        <h2 class="panel-title">Current Agents</h2>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>Name</th><th>Role</th><th>Nationality</th><th>Image</th></tr>
+            </thead>
+            <tbody>
+              {% for agent in agents %}
+              <tr>
+                <td>{{ agent.name }}</td>
+                <td>{{ agent.role }}</td>
+                <td>{{ agent.nationality }}</td>
+                <td>{{ agent.image }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <strong>Legal:</strong> VALODLE is not affiliated with or endorsed by Riot Games. VALORANT is a trademark of Riot Games, Inc.
+    </footer>
+  </body>
+</html>

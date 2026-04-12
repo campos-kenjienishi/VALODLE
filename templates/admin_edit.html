@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Valodle | Edit Agent</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('asset_file', filename='icons/valodleicon.ico') }}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='valodle.css') }}" />
+  </head>
+  <body>
+    <div class="bg-glow bg-glow-left"></div>
+    <div class="bg-glow bg-glow-right"></div>
+
+    <main class="home-shell admin-shell">
+      <section class="panel admin-head">
+        <div>
+          <p class="eyebrow">Admin</p>
+          <h1 class="admin-title">Edit Agent</h1>
+          <p class="home-subtitle">Select an agent, then update fields or replace uploaded assets.</p>
+        </div>
+        <div class="admin-actions">
+          <a class="ghost-button" href="{{ url_for('admin_panel') }}">Admin Home</a>
+          <a class="ghost-button" href="{{ url_for('home') }}">Back Home</a>
+        </div>
+      </section>
+
+      {% if message %}
+      <section class="panel admin-message"><strong>{{ message }}</strong></section>
+      {% endif %}
+
+      <section class="panel admin-card">
+        <form class="admin-form" method="get" action="{{ url_for('admin_edit_agent_page') }}">
+          <label>Select Agent
+            <select name="agent" onchange="this.form.submit()">
+              {% for agent in agents %}
+              <option value="{{ agent.name }}" {% if selected_agent and selected_agent.name == agent.name %}selected{% endif %}>{{ agent.name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </form>
+
+        {% if selected_agent %}
+        <form class="admin-form" method="post" action="{{ url_for('admin_edit_agent_save') }}" enctype="multipart/form-data">
+          <input type="hidden" name="agent_name" value="{{ selected_agent.name }}" />
+          <h2 class="panel-title">Agent Fields</h2>
+          <label>Gender<input type="text" name="gender" value="{{ selected_agent.gender }}" /></label>
+          <label>Role<input type="text" name="role" value="{{ selected_agent.role }}" /></label>
+          <label>Nationality / Continent<input type="text" name="nationality" value="{{ selected_agent.nationality }}" /></label>
+          <label>Specialty<input type="text" name="specialty" value="{{ selected_agent.specialty }}" /></label>
+          <label>Color Palette<input type="text" name="color_palette" value="{{ selected_agent.color_palette }}" /></label>
+          <label>Replace Agent Icon<input type="file" name="agent_icon" accept=".png,.webp,.jpg,.jpeg" /></label>
+
+          <h2 class="panel-title">Skills</h2>
+          <div class="admin-skill-grid">
+            {% for keybind in ['C','Q','E','X'] %}
+            <div class="panel admin-skill-block">
+              <h3>{{ keybind }} {% if keybind in ['C','Q'] %}- Basic{% elif keybind == 'E' %}- Signature{% else %}- Ultimate{% endif %}</h3>
+              <label>Skill Name
+                <input type="text" name="skill_name_{{ keybind }}" value="{{ selected_hints.get(keybind, {}).get('name', '') }}" />
+              </label>
+              <label>Skill Function
+                <input type="text" name="skill_function_{{ keybind }}" value="{{ selected_hints.get(keybind, {}).get('function', '') }}" />
+              </label>
+              <label>Replace Skill Icon
+                <input type="file" name="skill_icon_{{ keybind }}" accept=".png,.webp,.jpg,.jpeg" />
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+
+          <h2 class="panel-title">Ultimate Voice Lines</h2>
+          <label>Ally Cast Line<input type="text" name="ultimate_ally_line" value="{{ selected_voice_lines.get('ultimate_ally_line', '') }}" /></label>
+          <label>Replace Ally Cast Audio<input type="file" name="ultimate_ally_audio" accept="audio/*,.mp3,.wav,.ogg,.m4a,.mpeg" /></label>
+          <label>Enemy Cast Line<input type="text" name="ultimate_enemy_line" value="{{ selected_voice_lines.get('ultimate_enemy_line', '') }}" /></label>
+          <label>Replace Enemy Cast Audio<input type="file" name="ultimate_enemy_audio" accept="audio/*,.mp3,.wav,.ogg,.m4a,.mpeg" /></label>
+
+          <div class="admin-form-actions">
+            <button class="primary-button" type="submit">Save Changes</button>
+            <button class="danger-button" type="button" onclick="deleteAgent('{{ selected_agent.name }}')">Delete Agent</button>
+          </div>
+        </form>
+        {% endif %}
+      </section>
+    </main>
+    <footer class="site-footer">
+      <strong>Legal:</strong> VALODLE is not affiliated with or endorsed by Riot Games. VALORANT is a trademark of Riot Games, Inc.
+    </footer>
+    <script>
+      function deleteAgent(agentName) {
+        if (confirm(`Are you sure you want to delete "${agentName}"? This action cannot be undone.`)) {
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = '{{ url_for("admin_delete_agent") }}';
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'agent_name';
+          input.value = agentName;
+          form.appendChild(input);
+          document.body.appendChild(form);
+          form.submit();
+        }
+      }
+    </script>
+  </body>
+</html>

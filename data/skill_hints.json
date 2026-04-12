@@ -1,0 +1,524 @@
+{
+  "Astra": {
+    "Q": {
+      "name": "Nova Pulse",
+      "function": "Concuss"
+    },
+    "X": {
+      "name": "Cosmic Divide",
+      "function": "Wall"
+    },
+    "E": {
+      "name": "Nebula",
+      "function": "Smoke"
+    },
+    "C": {
+      "name": "Gravity Well",
+      "function": "Cripple, Displacement"
+    }
+  },
+  "Breach": {
+    "Q": {
+      "name": "Flashpoint",
+      "function": "Flash"
+    },
+    "X": {
+      "name": "Rolling Thunder",
+      "function": "Concuss, Displacement"
+    },
+    "E": {
+      "name": "Fault Line",
+      "function": "Concuss"
+    },
+    "C": {
+      "name": "Aftershock",
+      "function": "Deterrent"
+    }
+  },
+  "Brimstone": {
+    "Q": {
+      "name": "Incendiary",
+      "function": "Molotov"
+    },
+    "X": {
+      "name": "Orbital Strike",
+      "function": "Deterrent"
+    },
+    "E": {
+      "name": "Sky Smoke",
+      "function": "Smoke"
+    },
+    "C": {
+      "name": "Stim Beacon",
+      "function": "Buff"
+    }
+  },
+  "Chamber": {
+    "Q": {
+      "name": "Headhunter",
+      "function": "Weapon Equip"
+    },
+    "X": {
+      "name": "Tour De Force",
+      "function": "Weapon Equip"
+    },
+    "E": {
+      "name": "Rendezvous",
+      "function": "Teleport"
+    },
+    "C": {
+      "name": "Trademark",
+      "function": "Slow"
+    }
+  },
+  "Clove": {
+    "Q": {
+      "name": "Meddle",
+      "function": "Cripple"
+    },
+    "X": {
+      "name": "Not Dead Yet",
+      "function": "Revive"
+    },
+    "E": {
+      "name": "Ruse",
+      "function": "Smoke"
+    },
+    "C": {
+      "name": "Pick Me Up",
+      "function": "Heal"
+    }
+  },
+  "Cypher": {
+    "Q": {
+      "name": "Cyber Cage",
+      "function": "Vision Blocker"
+    },
+    "X": {
+      "name": "Neural Theft",
+      "function": "Intel"
+    },
+    "E": {
+      "name": "Spycam",
+      "function": "Controlled Deployable"
+    },
+    "C": {
+      "name": "Trapwire",
+      "function": "Slow"
+    }
+  },
+  "Deadlock": {
+    "Q": {
+      "name": "Sonic Sensor",
+      "function": "Concuss"
+    },
+    "X": {
+      "name": "Annihilation",
+      "function": "Detain"
+    },
+    "E": {
+      "name": "GravNet",
+      "function": "Slow"
+    },
+    "C": {
+      "name": "Barrier Mesh",
+      "function": "Barrier"
+    }
+  },
+  "Fade": {
+    "Q": {
+      "name": "Seize",
+      "function": "Tether"
+    },
+    "X": {
+      "name": "Nightfall",
+      "function": "Intel"
+    },
+    "E": {
+      "name": "Haunt",
+      "function": "Intel"
+    },
+    "C": {
+      "name": "Prowler",
+      "function": "Nearsight"
+    }
+  },
+  "Gekko": {
+    "Q": {
+      "name": "Wingman",
+      "function": "Concuss"
+    },
+    "X": {
+      "name": "Thrash",
+      "function": "Detain"
+    },
+    "E": {
+      "name": "Dizzy",
+      "function": "Blind"
+    },
+    "C": {
+      "name": "Mosh Pit",
+      "function": "Deterrent"
+    }
+  },
+  "Harbor": {
+    "Q": {
+      "name": "High Tide",
+      "function": "Wall"
+    },
+    "X": {
+      "name": "Reckoning",
+      "function": "Nearsight, Slow, Wall"
+    },
+    "E": {
+      "name": "Cove",
+      "function": "Smoke"
+    },
+    "C": {
+      "name": "Storm Surge",
+      "function": "Nearsight, Slow"
+    }
+  },
+  "Iso": {
+    "Q": {
+      "name": "Undercut",
+      "function": "Cripple"
+    },
+    "X": {
+      "name": "Kill Contract",
+      "function": "Banish"
+    },
+    "E": {
+      "name": "Double Tap",
+      "function": "Invulnerability"
+    },
+    "C": {
+      "name": "Contingency",
+      "function": "Wall"
+    }
+  },
+  "Jett": {
+    "Q": {
+      "name": "Updraft",
+      "function": "Dash"
+    },
+    "X": {
+      "name": "Blade Storm",
+      "function": "Weapon Equip"
+    },
+    "E": {
+      "name": "Tailwind",
+      "function": "Dash"
+    },
+    "C": {
+      "name": "Cloudburst",
+      "function": "Smoke"
+    }
+  },
+  "KAY/O": {
+    "Q": {
+      "name": "FLASH/drive",
+      "function": "Flash"
+    },
+    "X": {
+      "name": "NULL/cmd",
+      "function": "Limiter, Revive"
+    },
+    "E": {
+      "name": "ZERO/point",
+      "function": "Intel, Limiter"
+    },
+    "C": {
+      "name": "FRAG/ment",
+      "function": "Deterrent"
+    }
+  },
+  "Killjoy": {
+    "Q": {
+      "name": "Alarmbot",
+      "function": "Cripple"
+    },
+    "X": {
+      "name": "Lockdown",
+      "function": "Detain"
+    },
+    "E": {
+      "name": "Turret",
+      "function": "Autonomous Deployable"
+    },
+    "C": {
+      "name": "Nanoswarm",
+      "function": "Molotov"
+    }
+  },
+  "Miks": {
+    "Q": {
+      "name": "Harmonize",
+      "function": "Buff"
+    },
+    "X": {
+      "name": "Bassquake",
+      "function": "Slow"
+    },
+    "E": {
+      "name": "Waveform",
+      "function": "Smoke"
+    },
+    "C": {
+      "name": "M-pulse",
+      "function": "Concuss, Heal"
+    }
+  },
+  "Neon": {
+    "Q": {
+      "name": "Relay Bolt",
+      "function": "Concuss"
+    },
+    "X": {
+      "name": "Overdrive",
+      "function": "Weapon Equip"
+    },
+    "E": {
+      "name": "High Gear",
+      "function": "Dash"
+    },
+    "C": {
+      "name": "Fast Lane",
+      "function": "Wall"
+    }
+  },
+  "Omen": {
+    "Q": {
+      "name": "Paranoia",
+      "function": "Nearsight"
+    },
+    "X": {
+      "name": "From the Shadows",
+      "function": "Teleport"
+    },
+    "E": {
+      "name": "Dark Cover",
+      "function": "Smoke"
+    },
+    "C": {
+      "name": "Shrouded Step",
+      "function": "Teleport"
+    }
+  },
+  "Phoenix": {
+    "Q": {
+      "name": "Hot Hands",
+      "function": "Molotov"
+    },
+    "X": {
+      "name": "Run it Back",
+      "function": "Revive"
+    },
+    "E": {
+      "name": "Curveball",
+      "function": "Flash"
+    },
+    "C": {
+      "name": "Blaze",
+      "function": "Wall"
+    }
+  },
+  "Raze": {
+    "Q": {
+      "name": "Blast Pack",
+      "function": "Dash, Displacement"
+    },
+    "X": {
+      "name": "Showstopper",
+      "function": "Weapon Equip"
+    },
+    "E": {
+      "name": "Paint Shells",
+      "function": "Deterrent"
+    },
+    "C": {
+      "name": "Boom Bot",
+      "function": "Autonomous Deployment"
+    }
+  },
+  "Reyna": {
+    "Q": {
+      "name": "Devour",
+      "function": "Heal"
+    },
+    "X": {
+      "name": "Empress",
+      "function": "Buff"
+    },
+    "E": {
+      "name": "Dismiss",
+      "function": "Intangibility"
+    },
+    "C": {
+      "name": "Leer",
+      "function": "Nearsight"
+    }
+  },
+  "Sage": {
+    "Q": {
+      "name": "Slow Orb",
+      "function": "Slow"
+    },
+    "X": {
+      "name": "Resurrection",
+      "function": "Revive"
+    },
+    "E": {
+      "name": "Healing Orb",
+      "function": "Heal"
+    },
+    "C": {
+      "name": "Barrier Orb",
+      "function": "Wall, Barrier"
+    }
+  },
+  "Skye": {
+    "Q": {
+      "name": "Trailblazer",
+      "function": "Concuss"
+    },
+    "X": {
+      "name": "Seekers",
+      "function": "Nearsight, Slow"
+    },
+    "E": {
+      "name": "Guiding Light",
+      "function": "Flash"
+    },
+    "C": {
+      "name": "Regrowth",
+      "function": "Heal"
+    }
+  },
+  "Sova": {
+    "Q": {
+      "name": "Shock Bolt",
+      "function": "Deterrent"
+    },
+    "X": {
+      "name": "Hunter's Fury",
+      "function": "Weapon Equip"
+    },
+    "E": {
+      "name": "Recon Bolt",
+      "function": "Intel"
+    },
+    "C": {
+      "name": "Owl Drone",
+      "function": "Controlled Deployable"
+    }
+  },
+  "Tejo": {
+    "Q": {
+      "name": "Special Delivery",
+      "function": "Concuss"
+    },
+    "X": {
+      "name": "Armageddon",
+      "function": "Deterrent"
+    },
+    "E": {
+      "name": "Guided Salvo",
+      "function": "Deterrent"
+    },
+    "C": {
+      "name": "Stealth Drone",
+      "function": "Controlled Deployable, Limiter"
+    }
+  },
+  "Veto": {
+    "Q": {
+      "name": "Chokehold",
+      "function": "Cripple, Tether"
+    },
+    "X": {
+      "name": "Evolution",
+      "function": "Buff, Heal, Immunity"
+    },
+    "E": {
+      "name": "Interceptor",
+      "function": "Utility Defense"
+    },
+    "C": {
+      "name": "Crosscut",
+      "function": "Teleport"
+    }
+  },
+  "Viper": {
+    "Q": {
+      "name": "Poison Cloud",
+      "function": "Smoke"
+    },
+    "X": {
+      "name": "Viper's Pit",
+      "function": "Vision Blocker, Decay"
+    },
+    "E": {
+      "name": "Toxic Screen",
+      "function": "Wall"
+    },
+    "C": {
+      "name": "Snake Bite",
+      "function": "Molotov"
+    }
+  },
+  "Vyse": {
+    "Q": {
+      "name": "Shear",
+      "function": "Barrier, Wall"
+    },
+    "X": {
+      "name": "Steel Garden",
+      "function": "Limiter"
+    },
+    "E": {
+      "name": "Arc Rose",
+      "function": "Flash"
+    },
+    "C": {
+      "name": "Razorvine",
+      "function": "Slow"
+    }
+  },
+  "Waylay": {
+    "Q": {
+      "name": "Lightspeed",
+      "function": "Dash"
+    },
+    "X": {
+      "name": "Convergent Paths",
+      "function": "Hinder"
+    },
+    "E": {
+      "name": "Refract",
+      "function": "Intangibility"
+    },
+    "C": {
+      "name": "Saturate",
+      "function": "Hinder"
+    }
+  },
+  "Yoru": {
+    "Q": {
+      "name": "Blindside",
+      "function": "Flash"
+    },
+    "X": {
+      "name": "Dimensional Drift",
+      "function": "Intangibility"
+    },
+    "E": {
+      "name": "Gatecrash",
+      "function": "Teleport"
+    },
+    "C": {
+      "name": "Fakeout",
+      "function": "Flash"
+    }
+  }
+}

@@ -572,6 +572,18 @@ body {
   animation: rankCardPop 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+.rank-up-overlay.demote {
+  background: radial-gradient(circle at center, rgba(120, 170, 255, 0.2), rgba(8, 14, 26, 0.72) 55%, rgba(8, 14, 26, 0.9));
+}
+
+.rank-up-overlay.demote .rank-up-burst {
+  background: radial-gradient(circle, rgba(124, 176, 255, 0.52) 0%, rgba(68, 121, 255, 0.2) 45%, transparent 70%);
+}
+
+.rank-up-overlay.demote .rank-up-kicker {
+  color: #cfe0ff;
+}
+
 .rank-up-kicker {
   margin: 0;
   font-family: "Barlow Condensed", Impact, sans-serif;

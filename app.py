@@ -900,6 +900,14 @@ def api_guess(mode):
     if not guessed_agent:
         return jsonify({"ok": False, "message": "Agent not recognized."}), 404
 
+    guess_already_used = any(
+        str(entry.get("guess", "")).strip().lower() == guessed_agent["name"].strip().lower()
+        for entry in state.get("guesses", [])
+        if isinstance(entry, dict)
+    )
+    if guess_already_used:
+        return jsonify({"ok": False, "message": "You already guessed that agent this round."}), 409
+
     secret_agent = find_agent_by_name(agents, state["secret_name"])
     if not secret_agent:
         state = create_mode_round_state(mode, state["streak"], variant, state.get("daily_key") or get_daily_key())

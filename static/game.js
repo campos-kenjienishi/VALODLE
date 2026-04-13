@@ -32,6 +32,7 @@ const rankRR = document.getElementById("rankRR");
 const rankUpOverlay = document.getElementById("rankUpOverlay");
 const rankUpIcon = document.getElementById("rankUpIcon");
 const rankUpName = document.getElementById("rankUpName");
+const rankUpKicker = document.getElementById("rankUpKicker");
 
 const agentOptions = state.agent_options || [];
 
@@ -199,9 +200,15 @@ function renderRank(rank) {
   }
 }
 
-function showRankUpAnimation(rank) {
+function showRankChangeAnimation(rank, type = "up") {
   if (!rankUpOverlay || !rankUpIcon || !rankUpName || !rank) {
     return;
+  }
+
+  const normalizedType = type === "down" ? "down" : "up";
+  rankUpOverlay.classList.toggle("demote", normalizedType === "down");
+  if (rankUpKicker) {
+    rankUpKicker.textContent = normalizedType === "down" ? "Demoted" : "Rank Up!";
   }
 
   rankUpName.textContent = rank.name || "Rank Up";
@@ -418,6 +425,11 @@ async function submitGuess(event) {
     return;
   }
 
+  if (guessedNames.has(guess.toLowerCase())) {
+    setMessage("You already guessed that agent this round.", "miss");
+    return;
+  }
+
   const response = await fetch(withVariant(`${apiBase}/guess`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -472,7 +484,7 @@ async function submitGuess(event) {
       const rankedUp = data.rank && Number.isFinite(data.rank.index) && data.rank.index > previousRankIndex;
       const rankUpText = rankedUp ? ` Rank up: ${data.rank.name}.` : "";
       if (rankedUp) {
-        showRankUpAnimation(data.rank);
+        showRankChangeAnimation(data.rank, "up");
       }
       setMessage(`Correct.${deltaText} Press Enter or Continue for next round.${rankUpText}`, "match");
     }
@@ -494,7 +506,12 @@ async function submitGuess(event) {
     } else {
       const rankDelta = Number(data.rank && data.rank.delta ? data.rank.delta : 0);
       const deltaText = rankDelta < 0 ? ` ${rankDelta} RR.` : "";
-      setMessage(`Out of attempts.${deltaText} Press Enter or Continue.`, "miss");
+      const demoted = data.rank && Number.isFinite(data.rank.index) && data.rank.index < previousRankIndex;
+      const demotedText = demoted ? ` Demoted: ${data.rank.name}.` : "";
+      if (demoted) {
+        showRankChangeAnimation(data.rank, "down");
+      }
+      setMessage(`Out of attempts.${deltaText} Press Enter or Continue.${demotedText}`, "miss");
     }
     return;
   }

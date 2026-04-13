@@ -326,6 +326,7 @@ async function submitGuess(event) {
   guessCount += 1;
   if (mode === "skill-icon") {
     activeSkillHints = Array.isArray(data.active_hints) ? data.active_hints : [];
+      renderClue(state.clue);
     renderSkillHints();
   } else if (mode === "voice-line") {
     activeSkillHints = Array.isArray(data.active_hints) ? data.active_hints : [];

@@ -299,9 +299,37 @@ function renderGuess(entry) {
   guessList.prepend(row);
 }
 
+function resolveGuessInput(rawValue) {
+  const typed = String(rawValue || "").trim();
+  if (!typed) {
+    return "";
+  }
+
+  const normalized = typed.toLowerCase();
+  const exact = agentOptions.find((agent) => agent.name.toLowerCase() === normalized && !guessedNames.has(agent.name.toLowerCase()));
+  if (exact) {
+    return exact.name;
+  }
+
+  const firstMatch = agentOptions.find((agent) => {
+    const name = agent.name.toLowerCase();
+    return name.startsWith(normalized) && !guessedNames.has(name);
+  });
+  if (firstMatch) {
+    return firstMatch.name;
+  }
+
+  const firstSuggestion = currentSuggestions[0];
+  if (firstSuggestion) {
+    return firstSuggestion.name;
+  }
+
+  return typed;
+}
+
 async function submitGuess(event) {
   event.preventDefault();
-  const guess = guessInput.value.trim();
+  const guess = resolveGuessInput(guessInput.value);
 
   if (!guess) {
     setMessage("Type an agent name first.", "miss");
@@ -336,6 +364,10 @@ async function submitGuess(event) {
   renderSuggestions("");
 
   if (data.status === "won") {
+    if (mode === "skill-icon") {
+      guessCount = 4;
+      renderClue(state.clue);
+    }
     setStatus("won");
     setRoundControls("won");
     renderReveal(data.reveal_agent);

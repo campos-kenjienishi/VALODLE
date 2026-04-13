@@ -7,6 +7,7 @@ import hashlib
 from functools import wraps
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from flask import Flask, abort, jsonify, redirect, render_template, request, send_from_directory, session, url_for
 from werkzeug.utils import secure_filename
@@ -25,6 +26,7 @@ AGENTS_PATH = DATA_DIR / "agents.json"
 VALID_KEYBINDS = ("C", "Q", "E", "X")
 GAME_VARIANTS = {"endless", "daily"}
 ADMIN_PASSWORD = os.environ.get("VALODLE_ADMIN_PASSWORD", "valodleadmin")
+DAILY_TIMEZONE_NAME = os.environ.get("VALODLE_DAILY_TIMEZONE", "UTC")
 
 
 def build_icon_filename_lookup():
@@ -194,12 +196,23 @@ def get_variant_from_request():
     return normalize_variant(request.args.get("variant", "endless"))
 
 
+def get_daily_timezone():
+    try:
+        return ZoneInfo(DAILY_TIMEZONE_NAME)
+    except Exception:
+        return timezone.utc
+
+
+def now_in_daily_timezone():
+    return datetime.now(get_daily_timezone())
+
+
 def get_daily_key():
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return now_in_daily_timezone().strftime("%Y-%m-%d")
 
 
 def seconds_until_next_daily_reset():
-    now = datetime.now(timezone.utc)
+    now = now_in_daily_timezone()
     next_day = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
     return max(0, int((next_day - now).total_seconds()))
 

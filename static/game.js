@@ -35,6 +35,24 @@ let bonusStatus = (state.bonus && state.bonus.status) || "off";
 let activeSkillHints = Array.isArray(state.active_hints) ? state.active_hints : [];
 let guessCount = Array.isArray(state.guesses) ? state.guesses.length : 0;
 
+function formatDailyCountdown(totalSeconds) {
+  const seconds = Math.max(0, Number(totalSeconds) || 0);
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  if (hours > 0) {
+    return `${hours}h ${minutes}m`;
+  }
+  return `${minutes}m`;
+}
+
+function getDailyCompleteMessage(outcome) {
+  const countdown = formatDailyCountdown(state.daily_seconds_remaining);
+  if (outcome === "won") {
+    return `Correct. Daily solved. Next daily puzzle in ${countdown}.`;
+  }
+  return `Out of attempts. Daily complete. Next daily puzzle in ${countdown}.`;
+}
+
 function withVariant(url) {
   return isDailyMode ? `${url}?variant=daily` : url;
 }
@@ -384,7 +402,7 @@ async function submitGuess(event) {
       renderVoiceHints();
     }
     renderBonus(data.bonus_status || "pending");
-    setMessage(isDailyMode ? "Correct. Daily solved. Come back tomorrow." : "Correct. Press Enter or Continue for next round.", "match");
+    setMessage(isDailyMode ? getDailyCompleteMessage("won") : "Correct. Press Enter or Continue for next round.", "match");
     return;
   }
 
@@ -398,7 +416,7 @@ async function submitGuess(event) {
       renderVoiceHints();
     }
     renderBonus("off");
-    setMessage(isDailyMode ? "Out of attempts. Daily complete. Come back tomorrow." : "Out of attempts. Press Enter or Continue.", "miss");
+    setMessage(isDailyMode ? getDailyCompleteMessage("lost") : "Out of attempts. Press Enter or Continue.", "miss");
     return;
   }
 
@@ -543,6 +561,9 @@ function seedState() {
   }
 
   renderReveal(state.reveal_agent || null);
+  if (isDailyMode && (state.status === "won" || state.status === "lost")) {
+    setMessage(getDailyCompleteMessage(state.status), state.status === "won" ? "match" : "miss");
+  }
   renderSuggestions(guessInput.value || "");
 }
 

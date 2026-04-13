@@ -25,7 +25,7 @@
         <a class="ghost-button variant-switch-btn {% if variant == 'endless' %}is-active{% endif %}" href="{{ url_for('play_mode', mode=mode_key, variant='endless') }}">Endless</a>
         <a class="ghost-button variant-switch-btn {% if variant == 'daily' %}is-active{% endif %}" href="{{ url_for('play_mode', mode=mode_key, variant='daily') }}">Daily</a>
       </div>
-      <span class="top-bar-mode">{{ mode_label }}</span>
+      <span class="top-bar-mode">{{ mode_label }} · {{ 'Daily' if variant == 'daily' else 'Endless' }}</span>
     </header>
 
     <main class="app-shell">

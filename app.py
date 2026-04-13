@@ -5,7 +5,7 @@ import re
 import shutil
 import hashlib
 from functools import wraps
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, redirect, render_template, request, send_from_directory, session, url_for
@@ -196,6 +196,25 @@ def get_variant_from_request():
 
 def get_daily_key():
     return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+
+def seconds_until_next_daily_reset():
+    now = datetime.now(timezone.utc)
+    next_day = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    return max(0, int((next_day - now).total_seconds()))
+
+
+def format_seconds_compact(total_seconds):
+    seconds = max(0, int(total_seconds or 0))
+    hours, rem = divmod(seconds, 3600)
+    minutes, _ = divmod(rem, 60)
+    if hours > 0:
+        return f"{hours}h {minutes}m"
+    return f"{minutes}m"
+
+
+def daily_complete_message(prefix="Daily puzzle complete"):
+    return f"{prefix}. Next puzzle in {format_seconds_compact(seconds_until_next_daily_reset())}."
 
 
 def deterministic_index(seed, length):
@@ -449,6 +468,7 @@ def build_mode_page_state(mode, variant="endless"):
         "mode": mode,
         "variant": variant,
         "daily_key": state.get("daily_key", ""),
+        "daily_seconds_remaining": seconds_until_next_daily_reset() if variant == "daily" else 0,
         "attempts_left": state["attempts_left"],
         "streak": state["streak"],
         "status": state["status"],
@@ -473,6 +493,19 @@ def ensure_mode_or_404(mode):
 
 @app.route("/")
 def home():
+    return render_template("landing.html")
+
+
+@app.route("/modes/<variant>")
+def mode_home(variant):
+    variant = normalize_variant(variant)
+    variant_label = "Classic Daily" if variant == "daily" else "Endless Mode"
+    variant_subtitle = (
+        "Guess the agent of today. One shared puzzle per day in each mode."
+        if variant == "daily"
+        else "Play unlimited rounds. Keep your streak going as long as you can."
+    )
+
     mode_cards = []
     for key, info in MODES.items():
         mode_cards.append(
@@ -485,7 +518,13 @@ def home():
                 "icon": info.get("icon", ""),
             }
         )
-    return render_template("home.html", modes=mode_cards)
+    return render_template(
+        "home.html",
+        modes=mode_cards,
+        variant=variant,
+        variant_label=variant_label,
+        variant_subtitle=variant_subtitle,
+    )
 
 
 @app.route("/admin")
@@ -743,7 +782,7 @@ def api_guess(mode):
 
     if state["status"] != "playing":
         if variant == "daily":
-            return jsonify({"ok": False, "message": "Daily puzzle already completed. Come back tomorrow."}), 409
+            return jsonify({"ok": False, "message": daily_complete_message()}), 409
         return jsonify({"ok": False, "message": "Round finished. Continue or start a new game."}), 409
 
     payload = request.get_json(silent=True) or {}
@@ -811,7 +850,7 @@ def api_new_game(mode):
     ensure_mode_or_404(mode)
     variant = get_variant_from_request()
     if variant == "daily":
-        return jsonify({"ok": False, "message": "Daily mode can only be played once per day."}), 409
+        return jsonify({"ok": False, "message": daily_complete_message("Daily mode can only be played once per day")}), 409
 
     state = create_mode_round_state(mode, 0, variant)
     save_mode_state(mode, state, variant)
@@ -838,7 +877,7 @@ def api_next_round(mode):
     ensure_mode_or_404(mode)
     variant = get_variant_from_request()
     if variant == "daily":
-        return jsonify({"ok": False, "message": "Daily mode can only be played once per day."}), 409
+        return jsonify({"ok": False, "message": daily_complete_message("Daily mode can only be played once per day")}), 409
 
     current = get_mode_state(mode, variant)
     state = create_mode_round_state(mode, current["streak"], variant)

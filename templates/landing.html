@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Valodle | {{ variant_label }}</title>
+    <title>Valodle | Choose Experience</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('asset_file', filename='icons/valodleicon.ico') }}" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,17 +17,12 @@
     <main class="home-shell">
       <section class="home-hero panel">
         <div class="home-hero-copy">
-          <p class="eyebrow">Valodle Arcade</p>
+          <p class="eyebrow">Valodle</p>
           <img class="title-card title-card-home" src="{{ url_for('asset_file', filename='icons/valodletitlewhite.png') }}" alt="Valodle" />
-          <p class="home-subtitle">{{ variant_subtitle }}</p>
-          <div class="home-cta-row">
-            <a class="ghost-button hero-play-button" href="{{ url_for('home') }}">← Back to Main Home</a>
-          </div>
+          <p class="home-subtitle">Choose how you want to play.</p>
           <div class="home-badges">
-            <span>{{ variant_label }}</span>
-            <span>Classic</span>
-            <span>Skill Icon</span>
-            <span>Voice Line</span>
+            <span>Daily Challenge</span>
+            <span>Endless Practice</span>
           </div>
         </div>
         <div class="home-hero-panel">
@@ -35,22 +30,33 @@
         </div>
       </section>
 
-      <section id="modes" class="mode-grid">
-        {% for mode in modes %}
-          <article class="mode-card panel">
-            <div class="mode-card-head">
-              <img class="mode-card-icon" src="{{ url_for('asset_file', filename=mode.icon) }}" alt="{{ mode.label }} icon" />
-              <div>
-                <span class="mode-tag">{{ mode.tag }}</span>
-                <h2>{{ mode.label }}</h2>
-              </div>
+      <section class="entry-grid">
+        <article class="mode-card panel">
+          <div class="mode-card-head">
+            <img class="mode-card-icon" src="{{ url_for('asset_file', filename='icons/Classic_Mode.webp') }}" alt="Classic Daily icon" />
+            <div>
+              <span class="mode-tag">Daily</span>
+              <h2>Classic</h2>
             </div>
-            <p>{{ mode.description }}</p>
-            <a class="primary-button mode-button" href="{{ url_for('play_mode', mode=mode.key, variant=variant) }}">Play {{ mode.short_label }}</a>
-          </article>
-        {% endfor %}
+          </div>
+          <p>Guess the agent of today. One shared puzzle per day for each mode.</p>
+          <a class="primary-button mode-button" href="{{ url_for('mode_home', variant='daily') }}">Play Daily</a>
+        </article>
+
+        <article class="mode-card panel">
+          <div class="mode-card-head">
+            <img class="mode-card-icon" src="{{ url_for('asset_file', filename='icons/Skill_Icon_Mode.webp') }}" alt="Endless icon" />
+            <div>
+              <span class="mode-tag">Unlimited</span>
+              <h2>Endless</h2>
+            </div>
+          </div>
+          <p>Play as many rounds as you want. Keep your streak alive without waiting.</p>
+          <a class="primary-button mode-button" href="{{ url_for('mode_home', variant='endless') }}">Play Endless</a>
+        </article>
       </section>
     </main>
+
     <footer class="site-footer">
       <strong>Legal:</strong> VALODLE is not affiliated with or endorsed by Riot Games. VALORANT is a trademark of Riot Games, Inc.
     </footer>

@@ -148,6 +148,7 @@ body {
 }
 
 .mode-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.entry-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .admin-head {
   padding: 20px;
   margin-bottom: 14px;
@@ -891,7 +892,7 @@ body {
 .primary-button:active, .ghost-button:active { transform: translateY(1px); }
 @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
 @media (max-width: 1200px) {
-  .dashboard, .home-hero, .mode-grid, .admin-grid, .admin-choice-grid, .admin-skill-grid { grid-template-columns: 1fr; }
+  .dashboard, .home-hero, .mode-grid, .entry-grid, .admin-grid, .admin-choice-grid, .admin-skill-grid { grid-template-columns: 1fr; }
   .panel-reveal { min-height: 240px; }
 }
 @media (max-width: 700px) {

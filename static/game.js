@@ -33,13 +33,18 @@ const rankUpOverlay = document.getElementById("rankUpOverlay");
 const rankUpIcon = document.getElementById("rankUpIcon");
 const rankUpName = document.getElementById("rankUpName");
 const rankUpKicker = document.getElementById("rankUpKicker");
-const dailyShareBox = document.getElementById("dailyShareBox");
-const dailySharePreview = document.getElementById("dailySharePreview");
+const openLeaderboardBtn = document.getElementById("openLeaderboardBtn");
+const dailySubmitOverlay = document.getElementById("dailySubmitOverlay");
+const dailySubmitShare = document.getElementById("dailySubmitShare");
 const copyShareBtn = document.getElementById("copyShareBtn");
 const dailyNameInput = document.getElementById("dailyNameInput");
 const submitDailyBtn = document.getElementById("submitDailyBtn");
+const skipDailyBtn = document.getElementById("skipDailyBtn");
 const dailySubmitMessage = document.getElementById("dailySubmitMessage");
+const dailyBoardOverlay = document.getElementById("dailyBoardOverlay");
+const dailyBoardShare = document.getElementById("dailyBoardShare");
 const dailyLeaderboard = document.getElementById("dailyLeaderboard");
+const closeBoardBtn = document.getElementById("closeBoardBtn");
 
 const agentOptions = state.agent_options || [];
 
@@ -52,6 +57,7 @@ let guessCount = Array.isArray(state.guesses) ? state.guesses.length : 0;
 let currentRankIndex = state.rank && Number.isFinite(state.rank.index) ? state.rank.index : 0;
 let rankUpTimeoutId = null;
 let dailySubmitted = Boolean(state.daily_submitted);
+let dailyPromptShown = false;
 
 function formatDailyCountdown(totalSeconds) {
   const seconds = Math.max(0, Number(totalSeconds) || 0);
@@ -121,24 +127,64 @@ async function refreshDailyLeaderboard() {
   renderDailyLeaderboard(data.entries || []);
 }
 
-function updateDailyShareVisibility() {
-  if (!dailyShareBox) {
+function setDailyLeaderboardButtonVisibility() {
+  if (!openLeaderboardBtn) {
+    return;
+  }
+  if (!isDailyMode) {
+    openLeaderboardBtn.classList.add("hidden");
+    return;
+  }
+  openLeaderboardBtn.classList.remove("hidden");
+}
+
+function openDailySubmitModal() {
+  if (!dailySubmitOverlay) {
     return;
   }
 
-  const finished = roundStatus === "won" || roundStatus === "lost";
-  const show = isDailyMode && finished;
-  dailyShareBox.classList.toggle("hidden", !show);
-  if (!show) {
-    return;
+  if (dailySubmitShare) {
+    dailySubmitShare.textContent = buildDailyShareText();
   }
+  if (dailySubmitMessage) {
+    dailySubmitMessage.textContent = "";
+  }
+  dailySubmitOverlay.classList.remove("hidden");
+  if (dailyNameInput) {
+    dailyNameInput.focus();
+  }
+}
 
-  if (dailySharePreview) {
-    dailySharePreview.textContent = buildDailyShareText();
+function closeDailySubmitModal() {
+  if (dailySubmitOverlay) {
+    dailySubmitOverlay.classList.add("hidden");
   }
+}
+
+function openDailyBoardModal() {
+  if (dailyBoardShare) {
+    dailyBoardShare.textContent = buildDailyShareText();
+  }
+  if (dailyBoardOverlay) {
+    dailyBoardOverlay.classList.remove("hidden");
+  }
+}
+
+function closeDailyBoardModal() {
+  if (dailyBoardOverlay) {
+    dailyBoardOverlay.classList.add("hidden");
+  }
+}
+
+async function showDailyBoardModal() {
+  await refreshDailyLeaderboard();
+  openDailyBoardModal();
+}
+
+function updateDailySubmitButtonState() {
   if (submitDailyBtn) {
     submitDailyBtn.disabled = dailySubmitted;
-    submitDailyBtn.textContent = dailySubmitted ? "Submitted" : "Submit Score";
+    submitDailyBtn.textContent = dailySubmitted ? "Submitted" : "Submit";
   }
 }
 
@@ -169,6 +215,7 @@ async function submitDailyScore() {
     if (data.entries) {
       renderDailyLeaderboard(data.entries);
     }
+    await showDailyBoardModal();
     return;
   }
 
@@ -179,7 +226,9 @@ async function submitDailyScore() {
   if (data.entries) {
     renderDailyLeaderboard(data.entries);
   }
-  updateDailyShareVisibility();
+  updateDailySubmitButtonState();
+  closeDailySubmitModal();
+  openDailyBoardModal();
 }
 
 async function copyDailyResult() {
@@ -194,6 +243,22 @@ async function copyDailyResult() {
       dailySubmitMessage.textContent = text;
     }
   }
+}
+
+async function onDailyRoundComplete() {
+  if (!isDailyMode || dailyPromptShown) {
+    return;
+  }
+
+  dailyPromptShown = true;
+  setDailyLeaderboardButtonVisibility();
+
+  if (dailySubmitted) {
+    await showDailyBoardModal();
+    return;
+  }
+
+  openDailySubmitModal();
 }
 
 function withVariant(url) {
@@ -307,6 +372,7 @@ function setRoundControls(status) {
   guessForm.querySelector("button[type='submit']").disabled = finished;
   continueBtn.classList.toggle("hidden", !finished || isDailyMode);
   newGameBtn.classList.toggle("hidden", isDailyMode);
+  setDailyLeaderboardButtonVisibility();
 }
 
 function renderRank(rank) {
@@ -611,8 +677,7 @@ async function submitGuess(event) {
     renderBonus(data.bonus_status || "pending");
     if (isDailyMode) {
       setMessage(getDailyCompleteMessage("won"), "match");
-      updateDailyShareVisibility();
-      refreshDailyLeaderboard();
+      await onDailyRoundComplete();
     } else {
       const rankDelta = Number(data.rank && data.rank.delta ? data.rank.delta : 0);
       const deltaText = rankDelta > 0 ? ` +${rankDelta} RR.` : "";
@@ -638,8 +703,7 @@ async function submitGuess(event) {
     renderBonus("off");
     if (isDailyMode) {
       setMessage(getDailyCompleteMessage("lost"), "miss");
-      updateDailyShareVisibility();
-      refreshDailyLeaderboard();
+      await onDailyRoundComplete();
     } else {
       const rankDelta = Number(data.rank && data.rank.delta ? data.rank.delta : 0);
       const deltaText = rankDelta < 0 ? ` ${rankDelta} RR.` : "";
@@ -692,7 +756,8 @@ function resetRoundUI(data, text) {
   guessList.innerHTML = "";
   guessedNames = new Set();
   guessCount = 0;
-  dailySubmitted = false;
+  dailySubmitted = Boolean(data.daily_submitted || false);
+  dailyPromptShown = false;
   attemptsLeft.textContent = data.attempts_left;
   streakCount.textContent = data.streak;
   setStatus(data.status);
@@ -717,7 +782,9 @@ function resetRoundUI(data, text) {
   if (dailySubmitMessage) {
     dailySubmitMessage.textContent = "";
   }
-  updateDailyShareVisibility();
+  updateDailySubmitButtonState();
+  closeDailySubmitModal();
+  closeDailyBoardModal();
   renderSuggestions("");
   guessInput.focus();
 }
@@ -807,7 +874,8 @@ function seedState() {
   if (isDailyMode && (state.status === "won" || state.status === "lost")) {
     setMessage(getDailyCompleteMessage(state.status), state.status === "won" ? "match" : "miss");
   }
-  updateDailyShareVisibility();
+  updateDailySubmitButtonState();
+  setDailyLeaderboardButtonVisibility();
   if (isDailyMode) {
     refreshDailyLeaderboard();
   }
@@ -843,6 +911,21 @@ if (submitDailyBtn) {
 
 if (copyShareBtn) {
   copyShareBtn.addEventListener("click", copyDailyResult);
+}
+
+if (skipDailyBtn) {
+  skipDailyBtn.addEventListener("click", async () => {
+    closeDailySubmitModal();
+    await showDailyBoardModal();
+  });
+}
+
+if (openLeaderboardBtn) {
+  openLeaderboardBtn.addEventListener("click", showDailyBoardModal);
+}
+
+if (closeBoardBtn) {
+  closeBoardBtn.addEventListener("click", closeDailyBoardModal);
 }
 
 guessInput.addEventListener("input", (event) => {

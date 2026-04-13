@@ -798,38 +798,67 @@ body {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
-.daily-share-box {
-  margin-bottom: 14px;
-  padding: 12px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.daily-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 75;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(6, 11, 20, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.daily-modal-card {
+  width: min(100%, 520px);
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(160deg, rgba(20, 30, 50, 0.95), rgba(10, 17, 30, 0.94));
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
   display: grid;
   gap: 10px;
 }
-.daily-share-title {
+
+.daily-board-card {
+  width: min(100%, 560px);
+}
+
+.daily-modal-kicker {
   margin: 0;
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.13em;
   color: var(--accent-3);
 }
-.daily-share-preview {
+
+.daily-modal-share {
   margin: 0;
-  color: #dce7ff;
+  font-size: 1.02rem;
   font-weight: 700;
+  color: #eef4ff;
 }
-.daily-share-actions {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 8px;
+
+.daily-modal-copy {
+  margin: 0;
+  color: var(--muted);
 }
-.daily-share-actions input {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+
+.daily-modal-card input {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--text);
-  padding: 10px 12px;
+  padding: 11px 12px;
+  font-size: 0.98rem;
+}
+
+.daily-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
 }
 .daily-submit-message {
   margin: 0;
@@ -841,6 +870,8 @@ body {
   padding-left: 18px;
   display: grid;
   gap: 6px;
+  max-height: 360px;
+  overflow: auto;
 }
 .daily-leaderboard li {
   display: flex;
@@ -1056,6 +1087,5 @@ body {
   .top-bar-title { width: min(180px, 44vw); }
   .top-bar-legal { display: none; }
   .guess-form, .bonus-form, .stats-grid, .feedback-grid, .bonus-keybind-grid { grid-template-columns: 1fr; }
-  .daily-share-actions { grid-template-columns: 1fr; }
   .panel { border-radius: 22px; }
 }

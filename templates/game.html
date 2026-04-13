@@ -57,6 +57,7 @@
           <div class="post-round-actions round-info-actions">
             <button id="continueBtn" class="ghost-button hidden" type="button">Continue</button>
             <button id="newGameBtn" class="ghost-button" type="button">New Game</button>
+            <button id="openLeaderboardBtn" class="ghost-button hidden" type="button">Leaderboard</button>
           </div>
           <div class="feedback-legend" aria-label="Feedback legend">
             <div class="legend-item">
@@ -99,21 +100,6 @@
 
           <div id="messageBox" class="message-box">Start with any agent you know.</div>
 
-          <div id="dailyShareBox" class="daily-share-box hidden">
-            <p class="daily-share-title">Daily Result</p>
-            <p id="dailySharePreview" class="daily-share-preview"></p>
-            <div class="daily-share-actions">
-              <button id="copyShareBtn" class="ghost-button" type="button">Copy Result</button>
-              <input id="dailyNameInput" type="text" maxlength="20" placeholder="Display name" />
-              <button id="submitDailyBtn" class="primary-button" type="button">Submit Score</button>
-            </div>
-            <p id="dailySubmitMessage" class="daily-submit-message"></p>
-            <div class="daily-leaderboard-wrap">
-              <p class="daily-share-title">Today's Leaderboard</p>
-              <ol id="dailyLeaderboard" class="daily-leaderboard"></ol>
-            </div>
-          </div>
-
           <div id="guessList" class="guess-list"></div>
         </section>
 
@@ -136,6 +122,32 @@
         <p id="rankUpKicker" class="rank-up-kicker">Rank Up!</p>
         <img id="rankUpIcon" class="rank-up-icon" alt="Rank up icon" />
         <h2 id="rankUpName" class="rank-up-name">Gold</h2>
+      </div>
+    </div>
+
+    <div id="dailySubmitOverlay" class="daily-modal-overlay hidden" aria-live="polite" aria-label="Submit daily score">
+      <div class="daily-modal-card">
+        <p class="daily-modal-kicker">Daily Result</p>
+        <p id="dailySubmitShare" class="daily-modal-share">VALODLE Daily Classic 3/5</p>
+        <p class="daily-modal-copy">Submit your score to today's leaderboard?</p>
+        <input id="dailyNameInput" type="text" maxlength="20" placeholder="Display name" />
+        <p id="dailySubmitMessage" class="daily-submit-message"></p>
+        <div class="daily-modal-actions">
+          <button id="copyShareBtn" class="ghost-button" type="button">Copy Result</button>
+          <button id="submitDailyBtn" class="primary-button" type="button">Submit</button>
+          <button id="skipDailyBtn" class="ghost-button" type="button">Not Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="dailyBoardOverlay" class="daily-modal-overlay hidden" aria-live="polite" aria-label="Daily leaderboard">
+      <div class="daily-modal-card daily-board-card">
+        <p class="daily-modal-kicker">Today's Leaderboard</p>
+        <p id="dailyBoardShare" class="daily-modal-copy">VALODLE Daily</p>
+        <ol id="dailyLeaderboard" class="daily-leaderboard"></ol>
+        <div class="daily-modal-actions">
+          <button id="closeBoardBtn" class="primary-button" type="button">Close</button>
+        </div>
       </div>
     </div>
 

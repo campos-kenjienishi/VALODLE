@@ -1,5 +1,7 @@
 const state = window.VALODLE_STATE || {};
 const mode = state.mode || "classic";
+const variant = state.variant || "endless";
+const isDailyMode = variant === "daily";
 const apiBase = `/api/${mode}`;
 
 const guessForm = document.getElementById("guessForm");
@@ -32,6 +34,10 @@ let roundStatus = state.status || "playing";
 let bonusStatus = (state.bonus && state.bonus.status) || "off";
 let activeSkillHints = Array.isArray(state.active_hints) ? state.active_hints : [];
 let guessCount = Array.isArray(state.guesses) ? state.guesses.length : 0;
+
+function withVariant(url) {
+  return isDailyMode ? `${url}?variant=daily` : url;
+}
 
 function escapeHtml(text) {
   return String(text ?? "")
@@ -138,7 +144,8 @@ function setRoundControls(status) {
   const finished = status === "won" || status === "lost";
   guessInput.disabled = finished;
   guessForm.querySelector("button[type='submit']").disabled = finished;
-  continueBtn.classList.toggle("hidden", !finished);
+  continueBtn.classList.toggle("hidden", !finished || isDailyMode);
+  newGameBtn.classList.toggle("hidden", isDailyMode);
 }
 
 function renderClue(clue) {
@@ -336,7 +343,7 @@ async function submitGuess(event) {
     return;
   }
 
-  const response = await fetch(`${apiBase}/guess`, {
+  const response = await fetch(withVariant(`${apiBase}/guess`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ guess }),
@@ -377,7 +384,7 @@ async function submitGuess(event) {
       renderVoiceHints();
     }
     renderBonus(data.bonus_status || "pending");
-    setMessage("Correct. Press Enter or Continue for next round.", "match");
+    setMessage(isDailyMode ? "Correct. Daily solved. Come back tomorrow." : "Correct. Press Enter or Continue for next round.", "match");
     return;
   }
 
@@ -391,7 +398,7 @@ async function submitGuess(event) {
       renderVoiceHints();
     }
     renderBonus("off");
-    setMessage("Out of attempts. Press Enter or Continue.", "miss");
+    setMessage(isDailyMode ? "Out of attempts. Daily complete. Come back tomorrow." : "Out of attempts. Press Enter or Continue.", "miss");
     return;
   }
 
@@ -405,7 +412,7 @@ async function submitBonus(event) {
     return;
   }
 
-  const response = await fetch("/api/skill-icon/bonus", {
+  const response = await fetch(withVariant("/api/skill-icon/bonus"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ bonus: keybind }),
@@ -456,7 +463,7 @@ function resetRoundUI(data, text) {
 }
 
 async function startNewGame() {
-  const response = await fetch(`${apiBase}/new-game`, { method: "POST" });
+  const response = await fetch(withVariant(`${apiBase}/new-game`), { method: "POST" });
   const data = await response.json();
   if (!response.ok) {
     setMessage(data.message || "Could not restart game.", "miss");
@@ -466,7 +473,7 @@ async function startNewGame() {
 }
 
 async function continueRound() {
-  const response = await fetch(`${apiBase}/next-round`, { method: "POST" });
+  const response = await fetch(withVariant(`${apiBase}/next-round`), { method: "POST" });
   const data = await response.json();
   if (!response.ok) {
     setMessage(data.message || "Could not continue.", "miss");
@@ -603,7 +610,7 @@ document.addEventListener("keydown", (event) => {
   }
 
   const finished = roundStatus === "won" || roundStatus === "lost";
-  if (!finished) {
+  if (!finished || isDailyMode) {
     return;
   }
 

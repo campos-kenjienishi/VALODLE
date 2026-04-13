@@ -341,6 +341,11 @@ body {
   text-transform: uppercase;
 }
 .mode-card p { margin: 0; color: var(--muted); line-height: 1.5; }
+.mode-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
 .mode-tag {
   width: fit-content;
   padding: 6px 10px;
@@ -459,6 +464,26 @@ body {
   color: #ffdfe3;
   background: rgba(255, 70, 85, 0.12);
   border: 1px solid rgba(255, 70, 85, 0.18);
+}
+
+.variant-switch-bar {
+  display: inline-flex;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+.variant-switch-btn {
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.variant-switch-btn.is-active {
+  background: linear-gradient(135deg, rgba(255, 70, 85, 0.3), rgba(255, 111, 97, 0.2));
+  border: 1px solid rgba(255, 70, 85, 0.35);
+  color: #ffdfe3;
 }
 
 .dashboard {

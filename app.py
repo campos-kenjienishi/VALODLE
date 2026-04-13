@@ -3,7 +3,9 @@ import os
 import random
 import re
 import shutil
+import hashlib
 from functools import wraps
+from datetime import datetime, timezone
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, redirect, render_template, request, send_from_directory, session, url_for
@@ -21,6 +23,7 @@ AUDIO_DIR = BASE_DIR / "audio"
 DATA_DIR = BASE_DIR / "data"
 AGENTS_PATH = DATA_DIR / "agents.json"
 VALID_KEYBINDS = ("C", "Q", "E", "X")
+GAME_VARIANTS = {"endless", "daily"}
 ADMIN_PASSWORD = os.environ.get("VALODLE_ADMIN_PASSWORD", "valodleadmin")
 
 
@@ -182,8 +185,40 @@ def voice_fallback_line(agent):
     return f"I hold the role of {agent.get('role', 'agent')} in Valorant."
 
 
-def get_state_key(mode):
-    return f"game_state_{mode}"
+def normalize_variant(value):
+    candidate = str(value or "endless").strip().lower()
+    return candidate if candidate in GAME_VARIANTS else "endless"
+
+
+def get_variant_from_request():
+    return normalize_variant(request.args.get("variant", "endless"))
+
+
+def get_daily_key():
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+
+def deterministic_index(seed, length):
+    if length <= 0:
+        return 0
+    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()
+    return int(digest, 16) % length
+
+
+def choose_agent(candidates, seed=None):
+    if not candidates:
+        return None
+    if seed:
+        ordered = sorted(candidates, key=lambda item: item.get("name", "").lower())
+        return ordered[deterministic_index(seed, len(ordered))]
+    return random.choice(candidates)
+
+
+def get_state_key(mode, variant="endless", daily_key=None):
+    if variant == "daily":
+        day = daily_key or get_daily_key()
+        return f"game_state_{mode}_{variant}_{day}"
+    return f"game_state_{mode}_{variant}"
 
 
 def get_skill_icon_hints_for_state(state):
@@ -226,18 +261,24 @@ def get_voice_line_hints_for_state(state):
     return active_hints
 
 
-def create_mode_round_state(mode, streak=0):
+def create_mode_round_state(mode, streak=0, variant="endless", daily_key=None):
     agents = get_agents()
     if not agents:
         raise ValueError("No agents available in the database.")
+
+    variant = normalize_variant(variant)
+    if variant == "daily":
+        daily_key = daily_key or get_daily_key()
+
+    mode_seed = f"{daily_key}:{mode}" if variant == "daily" else ""
 
     if mode == "skill-icon":
         skill_icon_db = get_skill_icon_db()
         candidates = [agent for agent in agents if skill_icon_db.get(agent["name"])]
         if candidates:
-            agent = random.choice(candidates)
+            agent = choose_agent(candidates, mode_seed)
         else:
-            agent = random.choice(agents)
+            agent = choose_agent(agents, mode_seed)
     elif mode == "voice-line":
         voice_lines = load_voice_lines()
         candidates = []
@@ -250,14 +291,16 @@ def create_mode_round_state(mode, streak=0):
             if ally_line or enemy_line or ally_audio or enemy_audio:
                 candidates.append(agent)
         if candidates:
-            agent = random.choice(candidates)
+            agent = choose_agent(candidates, mode_seed)
         else:
-            agent = random.choice(agents)
+            agent = choose_agent(agents, mode_seed)
     else:
-        agent = random.choice(agents)
+        agent = choose_agent(agents, mode_seed)
 
     state = {
         "mode": mode,
+        "variant": variant,
+        "daily_key": daily_key if variant == "daily" else "",
         "secret_name": agent["name"],
         "attempts_left": 5,
         "streak": streak,
@@ -269,7 +312,22 @@ def create_mode_round_state(mode, streak=0):
     if mode == "skill-icon":
         skill_icon_db = get_skill_icon_db()
         skill_entries = skill_icon_db.get(agent["name"], [])
-        selected_skill = random.choice(skill_entries) if skill_entries else None
+        if variant == "daily":
+            skill_entries = sorted(
+                skill_entries,
+                key=lambda item: (
+                    str(item.get("keybind", "")).upper(),
+                    str(item.get("icon", "")).lower(),
+                ),
+            )
+        if skill_entries:
+            if variant == "daily":
+                index = deterministic_index(f"{mode_seed}:{agent['name']}:skill", len(skill_entries))
+                selected_skill = skill_entries[index]
+            else:
+                selected_skill = random.choice(skill_entries)
+        else:
+            selected_skill = None
 
         if selected_skill:
             skill_icon_path = selected_skill.get("icon") or agent.get("image", "")
@@ -280,7 +338,10 @@ def create_mode_round_state(mode, streak=0):
         else:
             # Fallback so the mode still works even if skill data is incomplete.
             specialties = split_specialties(agent.get("specialty", ""))
-            bonus_answer = random.choice(specialties) if specialties else "Unknown"
+            if specialties and variant == "daily":
+                bonus_answer = specialties[deterministic_index(f"{mode_seed}:{agent['name']}:fallback", len(specialties))]
+            else:
+                bonus_answer = random.choice(specialties) if specialties else "Unknown"
             skill_name = ""
             function_hint = ""
             skill_type = ""
@@ -316,7 +377,11 @@ def create_mode_round_state(mode, streak=0):
             cast_options.append(("Enemy Cast", enemy_line, enemy_audio))
 
         if cast_options:
-            cast_label, voice_line, voice_audio = random.choice(cast_options)
+            if variant == "daily":
+                idx = deterministic_index(f"{mode_seed}:{agent['name']}:cast", len(cast_options))
+                cast_label, voice_line, voice_audio = cast_options[idx]
+            else:
+                cast_label, voice_line, voice_audio = random.choice(cast_options)
             body = "Guess the agent from this ultimate voice line."
         else:
             voice_line = ""
@@ -343,22 +408,27 @@ def create_mode_round_state(mode, streak=0):
     return state
 
 
-def get_mode_state(mode):
-    state_key = get_state_key(mode)
+def get_mode_state(mode, variant="endless"):
+    variant = normalize_variant(variant)
+    daily_key = get_daily_key() if variant == "daily" else ""
+    state_key = get_state_key(mode, variant, daily_key)
     state = session.get(state_key)
-    if not state or state.get("mode") != mode:
-        state = create_mode_round_state(mode)
+    if not state or state.get("mode") != mode or state.get("variant", "endless") != variant:
+        state = create_mode_round_state(mode, variant=variant, daily_key=daily_key)
         session[state_key] = state
     return state
 
 
-def save_mode_state(mode, state):
-    session[get_state_key(mode)] = state
+def save_mode_state(mode, state, variant="endless"):
+    variant = normalize_variant(variant)
+    daily_key = state.get("daily_key") if variant == "daily" else ""
+    session[get_state_key(mode, variant, daily_key)] = state
     session.modified = True
 
 
-def build_mode_page_state(mode):
-    state = get_mode_state(mode)
+def build_mode_page_state(mode, variant="endless"):
+    variant = normalize_variant(variant)
+    state = get_mode_state(mode, variant)
     agents = get_agents()
     secret_agent = find_agent_by_name(agents, state["secret_name"])
     reveal_agent = None
@@ -377,6 +447,8 @@ def build_mode_page_state(mode):
 
     return {
         "mode": mode,
+        "variant": variant,
+        "daily_key": state.get("daily_key", ""),
         "attempts_left": state["attempts_left"],
         "streak": state["streak"],
         "status": state["status"],
@@ -649,10 +721,13 @@ def admin_delete_agent():
 @app.route("/play/<mode>")
 def play_mode(mode):
     ensure_mode_or_404(mode)
+    variant = get_variant_from_request()
     mode_meta = MODES[mode]
-    page_state = build_mode_page_state(mode)
+    page_state = build_mode_page_state(mode, variant)
     return render_template(
         "game.html",
+        mode_key=mode,
+        variant=variant,
         mode_label=mode_meta["label"],
         mode_description=mode_meta["hero_description"],
         page_state=json.dumps(page_state),
@@ -662,10 +737,13 @@ def play_mode(mode):
 @app.route("/api/<mode>/guess", methods=["POST"])
 def api_guess(mode):
     ensure_mode_or_404(mode)
-    state = get_mode_state(mode)
+    variant = get_variant_from_request()
+    state = get_mode_state(mode, variant)
     agents = get_agents()
 
     if state["status"] != "playing":
+        if variant == "daily":
+            return jsonify({"ok": False, "message": "Daily puzzle already completed. Come back tomorrow."}), 409
         return jsonify({"ok": False, "message": "Round finished. Continue or start a new game."}), 409
 
     payload = request.get_json(silent=True) or {}
@@ -680,8 +758,8 @@ def api_guess(mode):
 
     secret_agent = find_agent_by_name(agents, state["secret_name"])
     if not secret_agent:
-        state = create_mode_round_state(mode, state["streak"])
-        save_mode_state(mode, state)
+        state = create_mode_round_state(mode, state["streak"], variant, state.get("daily_key") or get_daily_key())
+        save_mode_state(mode, state, variant)
         return jsonify({"ok": False, "message": "Round reset. Try again."}), 500
 
     feedback = build_feedback(guessed_agent, secret_agent)
@@ -703,7 +781,7 @@ def api_guess(mode):
             state["status"] = "lost"
             state["streak"] = 0
 
-    save_mode_state(mode, state)
+    save_mode_state(mode, state, variant)
 
     response = {
         "ok": True,
@@ -731,8 +809,12 @@ def api_guess(mode):
 @app.route("/api/<mode>/new-game", methods=["POST"])
 def api_new_game(mode):
     ensure_mode_or_404(mode)
-    state = create_mode_round_state(mode, 0)
-    save_mode_state(mode, state)
+    variant = get_variant_from_request()
+    if variant == "daily":
+        return jsonify({"ok": False, "message": "Daily mode can only be played once per day."}), 409
+
+    state = create_mode_round_state(mode, 0, variant)
+    save_mode_state(mode, state, variant)
     return jsonify(
         {
             "ok": True,
@@ -754,9 +836,13 @@ def api_new_game(mode):
 @app.route("/api/<mode>/next-round", methods=["POST"])
 def api_next_round(mode):
     ensure_mode_or_404(mode)
-    current = get_mode_state(mode)
-    state = create_mode_round_state(mode, current["streak"])
-    save_mode_state(mode, state)
+    variant = get_variant_from_request()
+    if variant == "daily":
+        return jsonify({"ok": False, "message": "Daily mode can only be played once per day."}), 409
+
+    current = get_mode_state(mode, variant)
+    state = create_mode_round_state(mode, current["streak"], variant)
+    save_mode_state(mode, state, variant)
     return jsonify(
         {
             "ok": True,
@@ -778,7 +864,8 @@ def api_next_round(mode):
 @app.route("/api/skill-icon/bonus", methods=["POST"])
 def api_skill_bonus():
     mode = "skill-icon"
-    state = get_mode_state(mode)
+    variant = get_variant_from_request()
+    state = get_mode_state(mode, variant)
 
     if state.get("status") != "won":
         return jsonify({"ok": False, "message": "Bonus is available only after a correct guess."}), 409
@@ -796,7 +883,7 @@ def api_skill_bonus():
     correct = bonus_guess == answer
     if correct:
         state["bonus"]["status"] = "solved"
-        save_mode_state(mode, state)
+        save_mode_state(mode, state, variant)
 
     return jsonify({"ok": True, "correct": correct, "status": state["bonus"]["status"]})
 

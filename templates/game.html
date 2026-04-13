@@ -21,6 +21,10 @@
       <button id="backBtn" class="ghost-button hero-back" type="button">← Return</button>
       <img class="top-bar-title" src="{{ url_for('asset_file', filename='icons/valodletitlewhite.png') }}" alt="Valodle" />
       <span class="top-bar-legal">Not affiliated with Riot Games</span>
+      <div class="variant-switch-bar" aria-label="Game type">
+        <a class="ghost-button variant-switch-btn {% if variant == 'endless' %}is-active{% endif %}" href="{{ url_for('play_mode', mode=mode_key, variant='endless') }}">Endless</a>
+        <a class="ghost-button variant-switch-btn {% if variant == 'daily' %}is-active{% endif %}" href="{{ url_for('play_mode', mode=mode_key, variant='daily') }}">Daily</a>
+      </div>
       <span class="top-bar-mode">{{ mode_label }}</span>
     </header>
 

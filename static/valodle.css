@@ -787,6 +787,19 @@ body {
   justify-content: flex-start;
   margin: 12px 0 14px;
 }
+
+.leaderboard-button {
+  background: linear-gradient(135deg, rgba(247, 181, 0, 0.28), rgba(255, 70, 85, 0.2));
+  border: 1px solid rgba(247, 181, 0, 0.4);
+  color: #ffe4a3;
+  box-shadow: 0 0 0 rgba(247, 181, 0, 0.0);
+  animation: leaderboardPulse 2.1s ease-in-out infinite;
+}
+
+.leaderboard-button:hover {
+  border-color: rgba(247, 181, 0, 0.55);
+  color: #ffefc5;
+}
 .message-box {
   min-height: 48px;
   display: flex;
@@ -1074,6 +1087,10 @@ body {
   0% { transform: translateY(12px) scale(0.88); opacity: 0; }
   40% { transform: translateY(0) scale(1.04); opacity: 1; }
   100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes leaderboardPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(247, 181, 0, 0.0); }
+  50% { box-shadow: 0 0 0 6px rgba(247, 181, 0, 0.12); }
 }
 @media (max-width: 1200px) {
   .dashboard, .home-hero, .mode-grid, .entry-grid, .admin-grid, .admin-choice-grid, .admin-skill-grid { grid-template-columns: 1fr; }

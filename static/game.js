@@ -153,9 +153,10 @@ function renderClue(clue) {
 
   if (clue.type === "image") {
     if (skillIconCenter) {
+      const revealStage = Math.min(guessCount, 4);
       skillIconCenter.innerHTML = `
         <p class="clue-label">Skill Icon</p>
-        <img class="skill-icon-main" src="${clue.image_url}" alt="Skill clue" />
+        <img class="skill-icon-main" data-reveal="${revealStage}" src="${clue.image_url}" alt="Skill clue" />
       `;
       skillIconCenter.classList.remove("hidden");
     }

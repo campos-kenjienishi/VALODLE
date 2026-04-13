@@ -156,8 +156,9 @@ def _default_rank_state():
     }
 
 
-def _rank_state_key():
-    return "rank_state_endless"
+def _rank_state_key(mode):
+    normalized_mode = str(mode or "classic").strip().lower()
+    return f"rank_state_endless_{normalized_mode}"
 
 
 def _normalize_rank_state(rank_state):
@@ -175,14 +176,15 @@ def _normalize_rank_state(rank_state):
     return {"index": index, "rr": rr}
 
 
-def get_endless_rank_state():
-    state = _normalize_rank_state(session.get(_rank_state_key(), _default_rank_state()))
-    session[_rank_state_key()] = state
+def get_endless_rank_state(mode):
+    key = _rank_state_key(mode)
+    state = _normalize_rank_state(session.get(key, _default_rank_state()))
+    session[key] = state
     return state
 
 
-def save_endless_rank_state(rank_state):
-    session[_rank_state_key()] = _normalize_rank_state(rank_state)
+def save_endless_rank_state(mode, rank_state):
+    session[_rank_state_key(mode)] = _normalize_rank_state(rank_state)
     session.modified = True
 
 
@@ -586,7 +588,7 @@ def build_mode_page_state(mode, variant="endless"):
     }
 
     if variant == "endless":
-        page_state["rank"] = build_rank_payload(get_endless_rank_state())
+        page_state["rank"] = build_rank_payload(get_endless_rank_state(mode))
 
     return page_state
 
@@ -935,10 +937,10 @@ def api_guess(mode):
 
     rank_payload = None
     if variant == "endless":
-        current_rank = get_endless_rank_state()
+        current_rank = get_endless_rank_state(mode)
         if state["status"] in {"won", "lost"}:
             updated_rank, rank_delta = apply_rank_result(current_rank, state["status"] == "won")
-            save_endless_rank_state(updated_rank)
+            save_endless_rank_state(mode, updated_rank)
             rank_payload = build_rank_payload(updated_rank, rank_delta)
         else:
             rank_payload = build_rank_payload(current_rank)
@@ -996,7 +998,7 @@ def api_new_game(mode):
     }
 
     if variant == "endless":
-        response["rank"] = build_rank_payload(get_endless_rank_state())
+        response["rank"] = build_rank_payload(get_endless_rank_state(mode))
 
     return jsonify(response)
 
@@ -1027,7 +1029,7 @@ def api_next_round(mode):
     }
 
     if variant == "endless":
-        response["rank"] = build_rank_payload(get_endless_rank_state())
+        response["rank"] = build_rank_payload(get_endless_rank_state(mode))
 
     return jsonify(response)
 

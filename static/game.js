@@ -128,7 +128,7 @@ function setDailyLeaderboardButtonVisibility() {
   if (!openLeaderboardBtn) {
     return;
   }
-  openLeaderboardBtn.classList.remove("hidden");
+  openLeaderboardBtn.classList.toggle("hidden", !isDailyMode);
 }
 
 function openDailySubmitModal() {
@@ -677,13 +677,15 @@ async function submitGuess(event) {
       await onDailyRoundComplete();
     } else {
       const rankDelta = Number(data.rank && data.rank.delta ? data.rank.delta : 0);
+      const streakBonus = Number(data.rank && data.rank.streak_bonus ? data.rank.streak_bonus : 0);
       const deltaText = rankDelta > 0 ? ` +${rankDelta} RR.` : "";
+      const bonusText = streakBonus > 0 ? ` (streak bonus +${streakBonus})` : "";
       const rankedUp = data.rank && Number.isFinite(data.rank.index) && data.rank.index > previousRankIndex;
       const rankUpText = rankedUp ? ` Rank up: ${data.rank.name}.` : "";
       if (rankedUp) {
         showRankChangeAnimation(data.rank, "up");
       }
-      setMessage(`Correct.${deltaText} Press Enter or Continue for next round.${rankUpText}`, "match");
+      setMessage(`Correct.${deltaText}${bonusText} Press Enter or Continue for next round.${rankUpText}`, "match");
     }
     return;
   }

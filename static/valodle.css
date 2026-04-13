@@ -788,6 +788,16 @@ body {
   margin: 12px 0 14px;
 }
 
+.panel-head-game {
+  align-items: center;
+}
+
+.game-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .leaderboard-button {
   background: linear-gradient(135deg, rgba(247, 181, 0, 0.28), rgba(255, 70, 85, 0.2));
   border: 1px solid rgba(247, 181, 0, 0.4);

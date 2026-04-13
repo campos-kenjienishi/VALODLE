@@ -271,8 +271,10 @@ def _normalize_rank_state(rank_state):
     index = max(0, min(raw_index, max_index))
 
     raw_rr = int(rank_state.get("rr", 0) or 0)
-    max_rr = 100 if index == max_index else 99
-    rr = max(0, min(raw_rr, max_rr))
+    if index == max_index:
+        rr = max(0, raw_rr)
+    else:
+        rr = max(0, min(raw_rr, 99))
 
     return {"index": index, "rr": rr}
 
@@ -296,24 +298,37 @@ def _rank_total_points(rank_state):
 
 def _rank_from_total_points(total_points):
     max_index = len(RANK_ORDER) - 1
-    max_total = max_index * RANK_POINTS_PER_TIER + 100
-    clamped = max(0, min(int(total_points), max_total))
+    clamped = max(0, int(total_points))
 
-    index = min(max_index, clamped // RANK_POINTS_PER_TIER)
-    rr = clamped - (index * RANK_POINTS_PER_TIER)
-    if index < max_index:
-        rr = min(rr, 99)
+    if clamped >= max_index * RANK_POINTS_PER_TIER:
+        index = max_index
+        rr = clamped - (max_index * RANK_POINTS_PER_TIER)
+    else:
+        index = clamped // RANK_POINTS_PER_TIER
+        rr = min(99, clamped - (index * RANK_POINTS_PER_TIER))
 
     return {"index": index, "rr": rr}
 
 
-def apply_rank_result(rank_state, won):
-    delta = 25 if won else -15
+def get_streak_bonus_rr(streak):
+    value = int(streak or 0)
+    if value >= 8:
+        return 15
+    if value >= 5:
+        return 10
+    if value >= 3:
+        return 5
+    return 0
+
+
+def apply_rank_result(rank_state, won, streak=0):
+    streak_bonus = get_streak_bonus_rr(streak) if won else 0
+    delta = 25 + streak_bonus if won else -15
     updated = _rank_from_total_points(_rank_total_points(rank_state) + delta)
-    return updated, delta
+    return updated, delta, streak_bonus
 
 
-def build_rank_payload(rank_state, delta=0):
+def build_rank_payload(rank_state, delta=0, streak_bonus=0):
     normalized = _normalize_rank_state(rank_state)
     rank_name = RANK_ORDER[normalized["index"]]
     return {
@@ -321,6 +336,7 @@ def build_rank_payload(rank_state, delta=0):
         "index": normalized["index"],
         "rr": normalized["rr"],
         "delta": delta,
+        "streak_bonus": int(streak_bonus or 0),
         "icon_url": asset_url(f"icons/Ranks/{rank_name}.webp"),
     }
 
@@ -1041,9 +1057,9 @@ def api_guess(mode):
     if variant == "endless":
         current_rank = get_endless_rank_state(mode)
         if state["status"] in {"won", "lost"}:
-            updated_rank, rank_delta = apply_rank_result(current_rank, state["status"] == "won")
+            updated_rank, rank_delta, streak_bonus = apply_rank_result(current_rank, state["status"] == "won", state.get("streak", 0))
             save_endless_rank_state(mode, updated_rank)
-            rank_payload = build_rank_payload(updated_rank, rank_delta)
+            rank_payload = build_rank_payload(updated_rank, rank_delta, streak_bonus)
         else:
             rank_payload = build_rank_payload(current_rank)
 

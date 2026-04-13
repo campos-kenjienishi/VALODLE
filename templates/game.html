@@ -33,7 +33,7 @@
         <aside class="panel panel-info">
           <div class="panel-head">
             <span class="panel-title">Round Info</span>
-            <button id="openLeaderboardBtn" class="ghost-button leaderboard-button" type="button">Leaderboard</button>
+            <button id="openLeaderboardBtn" class="ghost-button leaderboard-button hidden" type="button">Leaderboard</button>
           </div>
           <div class="stats-grid">
             <div class="stat-card">
@@ -55,10 +55,6 @@
               </div>
             </div>
           </div>
-          <div class="post-round-actions round-info-actions">
-            <button id="continueBtn" class="ghost-button hidden" type="button">Continue</button>
-            <button id="newGameBtn" class="ghost-button" type="button">New Game</button>
-          </div>
           <div class="feedback-legend" aria-label="Feedback legend">
             <div class="legend-item">
               <span class="legend-dot match"></span>
@@ -77,9 +73,13 @@
         </aside>
 
         <section class="panel panel-game">
-          <div class="panel-head">
+          <div class="panel-head panel-head-game">
             <span class="panel-title">Guess Board</span>
-            <span id="statusPill" class="status-pill playing">Playing</span>
+            <div class="game-head-actions">
+              <span id="statusPill" class="status-pill playing">Playing</span>
+              <button id="continueBtn" class="ghost-button hidden" type="button">Continue</button>
+              <button id="newGameBtn" class="ghost-button" type="button">New Game</button>
+            </div>
           </div>
 
           <div id="skillIconCenter" class="skill-icon-center hidden" aria-live="polite"></div>

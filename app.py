@@ -608,7 +608,7 @@ def mode_home(variant):
     variant_subtitle = (
         "Guess the agent of today. One shared puzzle per day in each mode."
         if variant == "daily"
-        else "Play unlimited rounds. Keep your streak going as long as you can."
+        else "Play unlimited rounds, earn RR, and climb from Unranked to Radiant while keeping your streak alive."
     )
 
     mode_cards = []

@@ -106,10 +106,10 @@ function renderDailyLeaderboard(entries) {
   }
 
   dailyLeaderboard.innerHTML = safeEntries
-    .map((entry) => {
+    .map((entry, index) => {
       const name = escapeHtml(entry.name || "Player");
       const result = entry.solved ? `${entry.attempts}/5` : "X/5";
-      return `<li><span>${name}</span><strong>${result}</strong></li>`;
+      return `<li><span class="daily-rank-index">${index + 1}.</span><span>${name}</span><strong>${result}</strong></li>`;
     })
     .join("");
 }

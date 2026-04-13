@@ -902,6 +902,12 @@ body {
   gap: 12px;
   color: #dce7ff;
 }
+
+.daily-rank-index {
+  min-width: 28px;
+  color: #ffd9a0;
+  font-weight: 700;
+}
 .message-box[data-tone="match"] { color: #aaf0be; background: rgba(74, 222, 128, 0.12); border-color: rgba(74, 222, 128, 0.22); }
 .message-box[data-tone="partial"] { color: #ffe2b0; background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.2); }
 .message-box[data-tone="miss"] { color: #ffb3b3; background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.2); }

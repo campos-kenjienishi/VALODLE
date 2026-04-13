@@ -5,7 +5,7 @@ BASE_DIR = Path(__file__).resolve().parent
 ICONS_DIR = BASE_DIR / "icons"
 DATA_DIR = BASE_DIR / "data"
 SKILL_HINTS_PATH = DATA_DIR / "skill_hints.json"
-VALID_KEYBINDS = {"C", "Q", "E", "X"}
+VALID_KEYBINDS = ("C", "Q", "E", "X")
 IMAGE_EXTENSIONS = {".png", ".webp", ".jpg", ".jpeg"}
 
 # Manual hint/type metadata for agents currently prepared for testing.
@@ -83,9 +83,7 @@ def load_skill_hint_overrides():
     _ensure_data_dir()
     if SKILL_HINTS_PATH.exists():
         with SKILL_HINTS_PATH.open("r", encoding="utf-8") as file:
-            overrides = _normalize_skill_hint_overrides(json.load(file))
-            save_skill_hint_overrides(overrides)
-            return overrides
+            return _normalize_skill_hint_overrides(json.load(file))
     return _normalize_skill_hint_overrides(DEFAULT_SKILL_HINT_OVERRIDES)
 
 

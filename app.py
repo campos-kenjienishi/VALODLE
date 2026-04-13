@@ -134,6 +134,93 @@ MODES = {
     },
 }
 
+RANK_ORDER = [
+    "Unranked",
+    "Iron",
+    "Bronze",
+    "Silver",
+    "Gold",
+    "Platinum",
+    "Diamond",
+    "Ascendant",
+    "Immortal",
+    "Radiant",
+]
+RANK_POINTS_PER_TIER = 100
+
+
+def _default_rank_state():
+    return {
+        "index": 0,
+        "rr": 0,
+    }
+
+
+def _rank_state_key():
+    return "rank_state_endless"
+
+
+def _normalize_rank_state(rank_state):
+    if not isinstance(rank_state, dict):
+        return _default_rank_state()
+
+    raw_index = int(rank_state.get("index", 0) or 0)
+    max_index = len(RANK_ORDER) - 1
+    index = max(0, min(raw_index, max_index))
+
+    raw_rr = int(rank_state.get("rr", 0) or 0)
+    max_rr = 100 if index == max_index else 99
+    rr = max(0, min(raw_rr, max_rr))
+
+    return {"index": index, "rr": rr}
+
+
+def get_endless_rank_state():
+    state = _normalize_rank_state(session.get(_rank_state_key(), _default_rank_state()))
+    session[_rank_state_key()] = state
+    return state
+
+
+def save_endless_rank_state(rank_state):
+    session[_rank_state_key()] = _normalize_rank_state(rank_state)
+    session.modified = True
+
+
+def _rank_total_points(rank_state):
+    normalized = _normalize_rank_state(rank_state)
+    return normalized["index"] * RANK_POINTS_PER_TIER + normalized["rr"]
+
+
+def _rank_from_total_points(total_points):
+    max_index = len(RANK_ORDER) - 1
+    max_total = max_index * RANK_POINTS_PER_TIER + 100
+    clamped = max(0, min(int(total_points), max_total))
+
+    index = min(max_index, clamped // RANK_POINTS_PER_TIER)
+    rr = clamped - (index * RANK_POINTS_PER_TIER)
+    if index < max_index:
+        rr = min(rr, 99)
+
+    return {"index": index, "rr": rr}
+
+
+def apply_rank_result(rank_state, won):
+    delta = 25 if won else -15
+    updated = _rank_from_total_points(_rank_total_points(rank_state) + delta)
+    return updated, delta
+
+
+def build_rank_payload(rank_state, delta=0):
+    normalized = _normalize_rank_state(rank_state)
+    rank_name = RANK_ORDER[normalized["index"]]
+    return {
+        "name": rank_name,
+        "index": normalized["index"],
+        "rr": normalized["rr"],
+        "delta": delta,
+        "icon_url": asset_url(f"icons/Ranks/{rank_name}.webp"),
+    }
+
 
 def admin_required(view_func):
     @wraps(view_func)
@@ -477,7 +564,7 @@ def build_mode_page_state(mode, variant="endless"):
         for agent in agents
     ]
 
-    return {
+    page_state = {
         "mode": mode,
         "variant": variant,
         "daily_key": state.get("daily_key", ""),
@@ -497,6 +584,11 @@ def build_mode_page_state(mode, variant="endless"):
         "hints": state.get("hints", {}),
         "active_hints": get_skill_icon_hints_for_state(state) if mode == "skill-icon" else get_voice_line_hints_for_state(state),
     }
+
+    if variant == "endless":
+        page_state["rank"] = build_rank_payload(get_endless_rank_state())
+
+    return page_state
 
 
 def ensure_mode_or_404(mode):
@@ -833,6 +925,16 @@ def api_guess(mode):
             state["status"] = "lost"
             state["streak"] = 0
 
+    rank_payload = None
+    if variant == "endless":
+        current_rank = get_endless_rank_state()
+        if state["status"] in {"won", "lost"}:
+            updated_rank, rank_delta = apply_rank_result(current_rank, state["status"] == "won")
+            save_endless_rank_state(updated_rank)
+            rank_payload = build_rank_payload(updated_rank, rank_delta)
+        else:
+            rank_payload = build_rank_payload(current_rank)
+
     save_mode_state(mode, state, variant)
 
     response = {
@@ -847,6 +949,9 @@ def api_guess(mode):
         response["active_hints"] = get_skill_icon_hints_for_state(state)
     elif mode == "voice-line":
         response["active_hints"] = get_voice_line_hints_for_state(state)
+
+    if rank_payload:
+        response["rank"] = rank_payload
 
     if state["status"] in {"won", "lost"}:
         response["reveal_agent"] = {
@@ -867,8 +972,7 @@ def api_new_game(mode):
 
     state = create_mode_round_state(mode, 0, variant)
     save_mode_state(mode, state, variant)
-    return jsonify(
-        {
+    response = {
             "ok": True,
             "attempts_left": state["attempts_left"],
             "streak": state["streak"],
@@ -881,8 +985,12 @@ def api_new_game(mode):
                 "options": state.get("bonus", {}).get("options", ["C", "Q", "E", "X"]),
             },
             "active_hints": get_skill_icon_hints_for_state(state) if mode == "skill-icon" else get_voice_line_hints_for_state(state),
-        }
-    )
+    }
+
+    if variant == "endless":
+        response["rank"] = build_rank_payload(get_endless_rank_state())
+
+    return jsonify(response)
 
 
 @app.route("/api/<mode>/next-round", methods=["POST"])
@@ -895,8 +1003,7 @@ def api_next_round(mode):
     current = get_mode_state(mode, variant)
     state = create_mode_round_state(mode, current["streak"], variant)
     save_mode_state(mode, state, variant)
-    return jsonify(
-        {
+    response = {
             "ok": True,
             "attempts_left": state["attempts_left"],
             "streak": state["streak"],
@@ -909,8 +1016,12 @@ def api_next_round(mode):
                 "options": state.get("bonus", {}).get("options", ["C", "Q", "E", "X"]),
             },
             "active_hints": get_skill_icon_hints_for_state(state) if mode == "skill-icon" else get_voice_line_hints_for_state(state),
-        }
-    )
+    }
+
+    if variant == "endless":
+        response["rank"] = build_rank_payload(get_endless_rank_state())
+
+    return jsonify(response)
 
 
 @app.route("/api/skill-icon/bonus", methods=["POST"])

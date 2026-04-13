@@ -496,7 +496,7 @@ body {
 .panel-info, .panel-game, .panel-reveal { padding: 18px; }
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 14px;
 }
@@ -515,6 +515,29 @@ body {
   letter-spacing: 0.08em;
 }
 .stat-card strong { font-size: 1.35rem; }
+
+.rank-card {
+  padding: 10px 12px;
+}
+
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rank-icon {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: var(--img-filter-soft);
+}
+
+.rank-rr {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
 
 .feedback-legend {
   display: grid;

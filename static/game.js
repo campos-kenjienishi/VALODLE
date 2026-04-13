@@ -25,6 +25,10 @@ const skillIconCenter = document.getElementById("skillIconCenter");
 const bonusBox = document.getElementById("bonusBox");
 const bonusKeybindGrid = document.getElementById("bonusKeybindGrid");
 const bonusMessage = document.getElementById("bonusMessage");
+const rankCard = document.getElementById("rankCard");
+const rankIcon = document.getElementById("rankIcon");
+const rankName = document.getElementById("rankName");
+const rankRR = document.getElementById("rankRR");
 
 const agentOptions = state.agent_options || [];
 
@@ -34,6 +38,7 @@ let roundStatus = state.status || "playing";
 let bonusStatus = (state.bonus && state.bonus.status) || "off";
 let activeSkillHints = Array.isArray(state.active_hints) ? state.active_hints : [];
 let guessCount = Array.isArray(state.guesses) ? state.guesses.length : 0;
+let currentRankIndex = state.rank && Number.isFinite(state.rank.index) ? state.rank.index : 0;
 
 function formatDailyCountdown(totalSeconds) {
   const seconds = Math.max(0, Number(totalSeconds) || 0);
@@ -164,6 +169,30 @@ function setRoundControls(status) {
   guessForm.querySelector("button[type='submit']").disabled = finished;
   continueBtn.classList.toggle("hidden", !finished || isDailyMode);
   newGameBtn.classList.toggle("hidden", isDailyMode);
+}
+
+function renderRank(rank) {
+  if (isDailyMode || !rank || !rankCard) {
+    if (rankCard) {
+      rankCard.classList.add("hidden");
+    }
+    return;
+  }
+
+  rankCard.classList.remove("hidden");
+  rankName.textContent = rank.name || "Unranked";
+  rankRR.textContent = `${Number(rank.rr || 0)} RR`;
+  if (rank.icon_url) {
+    rankIcon.src = rank.icon_url;
+    rankIcon.alt = `${rank.name || "Unranked"} rank icon`;
+  } else {
+    rankIcon.removeAttribute("src");
+    rankIcon.alt = "Rank icon";
+  }
+
+  if (Number.isFinite(rank.index)) {
+    currentRankIndex = rank.index;
+  }
 }
 
 function renderClue(clue) {
@@ -373,8 +402,13 @@ async function submitGuess(event) {
     return;
   }
 
+  const previousRankIndex = currentRankIndex;
+
   attemptsLeft.textContent = data.attempts_left;
   streakCount.textContent = data.streak;
+  if (data.rank) {
+    renderRank(data.rank);
+  }
   renderGuess(data.guess);
   guessCount += 1;
   if (mode === "skill-icon") {
@@ -402,7 +436,14 @@ async function submitGuess(event) {
       renderVoiceHints();
     }
     renderBonus(data.bonus_status || "pending");
-    setMessage(isDailyMode ? getDailyCompleteMessage("won") : "Correct. Press Enter or Continue for next round.", "match");
+    if (isDailyMode) {
+      setMessage(getDailyCompleteMessage("won"), "match");
+    } else {
+      const rankDelta = Number(data.rank && data.rank.delta ? data.rank.delta : 0);
+      const deltaText = rankDelta > 0 ? ` +${rankDelta} RR.` : "";
+      const rankUpText = data.rank && Number.isFinite(data.rank.index) && data.rank.index > previousRankIndex ? ` Rank up: ${data.rank.name}.` : "";
+      setMessage(`Correct.${deltaText} Press Enter or Continue for next round.${rankUpText}`, "match");
+    }
     return;
   }
 
@@ -416,7 +457,13 @@ async function submitGuess(event) {
       renderVoiceHints();
     }
     renderBonus("off");
-    setMessage(isDailyMode ? getDailyCompleteMessage("lost") : "Out of attempts. Press Enter or Continue.", "miss");
+    if (isDailyMode) {
+      setMessage(getDailyCompleteMessage("lost"), "miss");
+    } else {
+      const rankDelta = Number(data.rank && data.rank.delta ? data.rank.delta : 0);
+      const deltaText = rankDelta < 0 ? ` ${rankDelta} RR.` : "";
+      setMessage(`Out of attempts.${deltaText} Press Enter or Continue.`, "miss");
+    }
     return;
   }
 
@@ -467,6 +514,10 @@ function resetRoundUI(data, text) {
   state.clue = data.clue || state.clue || {};
   state.hints = data.hints || state.hints || {};
   state.bonus = data.bonus || state.bonus || { enabled: false, status: "off", options: ["C", "Q", "E", "X"] };
+  if (data.rank) {
+    state.rank = data.rank;
+    renderRank(data.rank);
+  }
   renderClue(state.clue);
   renderBonus("off");
   activeSkillHints = Array.isArray(data.active_hints) ? data.active_hints : [];
@@ -547,6 +598,7 @@ function seedState() {
   setStatus(state.status || "playing");
   setRoundControls(state.status || "playing");
   renderClue(state.clue);
+  renderRank(state.rank || null);
   renderBonus(state.bonus ? state.bonus.status : "off");
   activeSkillHints = Array.isArray(state.active_hints) ? state.active_hints : [];
   if (mode === "skill-icon") {

@@ -115,13 +115,10 @@ function renderDailyLeaderboard(entries) {
 }
 
 async function refreshDailyLeaderboard() {
-  if (!isDailyMode) {
-    return;
-  }
-
-  const response = await fetch(withVariant(`${apiBase}/daily-leaderboard`));
+  const response = await fetch(withDailyVariant(`${apiBase}/daily-leaderboard`));
   const data = await response.json();
   if (!response.ok) {
+    renderDailyLeaderboard([]);
     return;
   }
   renderDailyLeaderboard(data.entries || []);
@@ -129,10 +126,6 @@ async function refreshDailyLeaderboard() {
 
 function setDailyLeaderboardButtonVisibility() {
   if (!openLeaderboardBtn) {
-    return;
-  }
-  if (!isDailyMode) {
-    openLeaderboardBtn.classList.add("hidden");
     return;
   }
   openLeaderboardBtn.classList.remove("hidden");
@@ -163,7 +156,7 @@ function closeDailySubmitModal() {
 
 function openDailyBoardModal() {
   if (dailyBoardShare) {
-    dailyBoardShare.textContent = buildDailyShareText();
+    dailyBoardShare.textContent = `Today's ${getModeLabel()} Daily Leaderboard`;
   }
   if (dailyBoardOverlay) {
     dailyBoardOverlay.classList.remove("hidden");
@@ -263,6 +256,10 @@ async function onDailyRoundComplete() {
 
 function withVariant(url) {
   return isDailyMode ? `${url}?variant=daily` : url;
+}
+
+function withDailyVariant(url) {
+  return `${url}?variant=daily`;
 }
 
 function escapeHtml(text) {
@@ -876,9 +873,7 @@ function seedState() {
   }
   updateDailySubmitButtonState();
   setDailyLeaderboardButtonVisibility();
-  if (isDailyMode) {
-    refreshDailyLeaderboard();
-  }
+  refreshDailyLeaderboard();
   renderSuggestions(guessInput.value || "");
 }
 

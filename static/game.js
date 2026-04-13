@@ -29,6 +29,9 @@ const rankCard = document.getElementById("rankCard");
 const rankIcon = document.getElementById("rankIcon");
 const rankName = document.getElementById("rankName");
 const rankRR = document.getElementById("rankRR");
+const rankUpOverlay = document.getElementById("rankUpOverlay");
+const rankUpIcon = document.getElementById("rankUpIcon");
+const rankUpName = document.getElementById("rankUpName");
 
 const agentOptions = state.agent_options || [];
 
@@ -39,6 +42,7 @@ let bonusStatus = (state.bonus && state.bonus.status) || "off";
 let activeSkillHints = Array.isArray(state.active_hints) ? state.active_hints : [];
 let guessCount = Array.isArray(state.guesses) ? state.guesses.length : 0;
 let currentRankIndex = state.rank && Number.isFinite(state.rank.index) ? state.rank.index : 0;
+let rankUpTimeoutId = null;
 
 function formatDailyCountdown(totalSeconds) {
   const seconds = Math.max(0, Number(totalSeconds) || 0);
@@ -193,6 +197,30 @@ function renderRank(rank) {
   if (Number.isFinite(rank.index)) {
     currentRankIndex = rank.index;
   }
+}
+
+function showRankUpAnimation(rank) {
+  if (!rankUpOverlay || !rankUpIcon || !rankUpName || !rank) {
+    return;
+  }
+
+  rankUpName.textContent = rank.name || "Rank Up";
+  if (rank.icon_url) {
+    rankUpIcon.src = rank.icon_url;
+    rankUpIcon.alt = `${rank.name || "Rank"} icon`;
+  } else {
+    rankUpIcon.removeAttribute("src");
+    rankUpIcon.alt = "Rank icon";
+  }
+
+  rankUpOverlay.classList.remove("hidden");
+  if (rankUpTimeoutId) {
+    clearTimeout(rankUpTimeoutId);
+  }
+  rankUpTimeoutId = setTimeout(() => {
+    rankUpOverlay.classList.add("hidden");
+    rankUpTimeoutId = null;
+  }, 1800);
 }
 
 function renderClue(clue) {
@@ -441,7 +469,11 @@ async function submitGuess(event) {
     } else {
       const rankDelta = Number(data.rank && data.rank.delta ? data.rank.delta : 0);
       const deltaText = rankDelta > 0 ? ` +${rankDelta} RR.` : "";
-      const rankUpText = data.rank && Number.isFinite(data.rank.index) && data.rank.index > previousRankIndex ? ` Rank up: ${data.rank.name}.` : "";
+      const rankedUp = data.rank && Number.isFinite(data.rank.index) && data.rank.index > previousRankIndex;
+      const rankUpText = rankedUp ? ` Rank up: ${data.rank.name}.` : "";
+      if (rankedUp) {
+        showRankUpAnimation(data.rank);
+      }
       setMessage(`Correct.${deltaText} Press Enter or Continue for next round.${rankUpText}`, "match");
     }
     return;

@@ -114,6 +114,15 @@
       </section>
     </main>
 
+    <div id="rankUpOverlay" class="rank-up-overlay hidden" aria-live="polite" aria-label="Rank up celebration">
+      <div class="rank-up-burst"></div>
+      <div class="rank-up-card">
+        <p class="rank-up-kicker">Rank Up!</p>
+        <img id="rankUpIcon" class="rank-up-icon" alt="Rank up icon" />
+        <h2 id="rankUpName" class="rank-up-name">Gold</h2>
+      </div>
+    </div>
+
     <script src="{{ url_for('static', filename='game.js') }}"></script>
   </body>
 </html>

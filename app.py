@@ -23,6 +23,7 @@ ICON_DIR = BASE_DIR / "icons"
 AUDIO_DIR = BASE_DIR / "audio"
 DATA_DIR = BASE_DIR / "data"
 AGENTS_PATH = DATA_DIR / "agents.json"
+DAILY_SCORES_PATH = DATA_DIR / "daily_scores.json"
 VALID_KEYBINDS = ("C", "Q", "E", "X")
 GAME_VARIANTS = {"endless", "daily"}
 ADMIN_PASSWORD = os.environ.get("VALODLE_ADMIN_PASSWORD", "valodleadmin")
@@ -48,6 +49,77 @@ ICON_FILENAME_LOOKUP = build_icon_filename_lookup()
 
 def ensure_data_dir():
     DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def load_daily_scores():
+    ensure_data_dir()
+    if not DAILY_SCORES_PATH.exists():
+        return {}
+    try:
+        with DAILY_SCORES_PATH.open("r", encoding="utf-8") as file:
+            payload = json.load(file)
+            return payload if isinstance(payload, dict) else {}
+    except Exception:
+        return {}
+
+
+def save_daily_scores(payload):
+    ensure_data_dir()
+    with DAILY_SCORES_PATH.open("w", encoding="utf-8") as file:
+        json.dump(payload, file, indent=2, ensure_ascii=True)
+
+
+def get_daily_submit_key(mode, daily_key):
+    return f"daily_submit_{mode}_{daily_key}"
+
+
+def get_daily_entries(mode, daily_key):
+    all_scores = load_daily_scores()
+    day_bucket = all_scores.get(daily_key, {})
+    mode_entries = day_bucket.get(mode, [])
+    return mode_entries if isinstance(mode_entries, list) else []
+
+
+def _is_better_daily_entry(new_entry, existing_entry):
+    if bool(new_entry.get("solved")) != bool(existing_entry.get("solved")):
+        return bool(new_entry.get("solved"))
+
+    if bool(new_entry.get("solved")):
+        return int(new_entry.get("attempts", 99)) < int(existing_entry.get("attempts", 99))
+
+    return str(new_entry.get("submitted_at", "")) < str(existing_entry.get("submitted_at", ""))
+
+
+def upsert_daily_entry(mode, daily_key, entry):
+    all_scores = load_daily_scores()
+    day_bucket = all_scores.setdefault(daily_key, {})
+    entries = day_bucket.setdefault(mode, [])
+
+    name_key = str(entry.get("name", "")).strip().lower()
+    replaced = False
+    for idx, existing in enumerate(entries):
+        if str(existing.get("name", "")).strip().lower() == name_key:
+            if _is_better_daily_entry(entry, existing):
+                entries[idx] = entry
+            replaced = True
+            break
+
+    if not replaced:
+        entries.append(entry)
+
+    save_daily_scores(all_scores)
+
+
+def sort_daily_entries(entries):
+    return sorted(
+        entries,
+        key=lambda item: (
+            0 if item.get("solved") else 1,
+            int(item.get("attempts", 99)) if item.get("solved") else 99,
+            str(item.get("submitted_at", "")),
+            str(item.get("name", "")).lower(),
+        ),
+    )
 
 
 def get_agents():
@@ -571,6 +643,7 @@ def build_mode_page_state(mode, variant="endless"):
         "variant": variant,
         "daily_key": state.get("daily_key", ""),
         "daily_seconds_remaining": seconds_until_next_daily_reset() if variant == "daily" else 0,
+        "daily_submitted": bool(session.get(get_daily_submit_key(mode, state.get("daily_key", "")))) if variant == "daily" else False,
         "attempts_left": state["attempts_left"],
         "streak": state["streak"],
         "status": state["status"],
@@ -1032,6 +1105,68 @@ def api_next_round(mode):
         response["rank"] = build_rank_payload(get_endless_rank_state(mode))
 
     return jsonify(response)
+
+
+@app.route("/api/<mode>/daily-leaderboard", methods=["GET"])
+def api_daily_leaderboard(mode):
+    ensure_mode_or_404(mode)
+    variant = get_variant_from_request()
+    if variant != "daily":
+        return jsonify({"ok": False, "message": "Daily leaderboard is available only in daily mode."}), 400
+
+    daily_key = get_daily_key()
+    entries = sort_daily_entries(get_daily_entries(mode, daily_key))
+    return jsonify(
+        {
+            "ok": True,
+            "daily_key": daily_key,
+            "entries": entries[:20],
+        }
+    )
+
+
+@app.route("/api/<mode>/daily-submit", methods=["POST"])
+def api_daily_submit(mode):
+    ensure_mode_or_404(mode)
+    variant = get_variant_from_request()
+    if variant != "daily":
+        return jsonify({"ok": False, "message": "Daily submission is available only in daily mode."}), 400
+
+    state = get_mode_state(mode, variant)
+    if state.get("status") not in {"won", "lost"}:
+        return jsonify({"ok": False, "message": "Finish the daily puzzle before submitting."}), 409
+
+    daily_key = state.get("daily_key") or get_daily_key()
+    submit_key = get_daily_submit_key(mode, daily_key)
+    if session.get(submit_key):
+        entries = sort_daily_entries(get_daily_entries(mode, daily_key))
+        return jsonify({"ok": False, "message": "You already submitted today.", "entries": entries[:20]}), 409
+
+    payload = request.get_json(silent=True) or {}
+    display_name = str(payload.get("name", "")).strip()
+    if not display_name:
+        return jsonify({"ok": False, "message": "Enter a display name."}), 400
+
+    safe_name = re.sub(r"\s+", " ", display_name)
+    safe_name = re.sub(r"[^A-Za-z0-9 _\-]", "", safe_name).strip()
+    if len(safe_name) < 2:
+        return jsonify({"ok": False, "message": "Name must be at least 2 valid characters."}), 400
+    safe_name = safe_name[:20]
+
+    entry = {
+        "name": safe_name,
+        "mode": mode,
+        "solved": state.get("status") == "won",
+        "attempts": len(state.get("guesses", [])),
+        "submitted_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    }
+    upsert_daily_entry(mode, daily_key, entry)
+
+    session[submit_key] = True
+    session.modified = True
+
+    entries = sort_daily_entries(get_daily_entries(mode, daily_key))
+    return jsonify({"ok": True, "message": "Submitted to today's leaderboard.", "entries": entries[:20]})
 
 
 @app.route("/api/skill-icon/bonus", methods=["POST"])

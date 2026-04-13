@@ -98,6 +98,22 @@
           </div>
 
           <div id="messageBox" class="message-box">Start with any agent you know.</div>
+
+          <div id="dailyShareBox" class="daily-share-box hidden">
+            <p class="daily-share-title">Daily Result</p>
+            <p id="dailySharePreview" class="daily-share-preview"></p>
+            <div class="daily-share-actions">
+              <button id="copyShareBtn" class="ghost-button" type="button">Copy Result</button>
+              <input id="dailyNameInput" type="text" maxlength="20" placeholder="Display name" />
+              <button id="submitDailyBtn" class="primary-button" type="button">Submit Score</button>
+            </div>
+            <p id="dailySubmitMessage" class="daily-submit-message"></p>
+            <div class="daily-leaderboard-wrap">
+              <p class="daily-share-title">Today's Leaderboard</p>
+              <ol id="dailyLeaderboard" class="daily-leaderboard"></ol>
+            </div>
+          </div>
+
           <div id="guessList" class="guess-list"></div>
         </section>
 

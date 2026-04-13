@@ -33,6 +33,13 @@ const rankUpOverlay = document.getElementById("rankUpOverlay");
 const rankUpIcon = document.getElementById("rankUpIcon");
 const rankUpName = document.getElementById("rankUpName");
 const rankUpKicker = document.getElementById("rankUpKicker");
+const dailyShareBox = document.getElementById("dailyShareBox");
+const dailySharePreview = document.getElementById("dailySharePreview");
+const copyShareBtn = document.getElementById("copyShareBtn");
+const dailyNameInput = document.getElementById("dailyNameInput");
+const submitDailyBtn = document.getElementById("submitDailyBtn");
+const dailySubmitMessage = document.getElementById("dailySubmitMessage");
+const dailyLeaderboard = document.getElementById("dailyLeaderboard");
 
 const agentOptions = state.agent_options || [];
 
@@ -44,6 +51,7 @@ let activeSkillHints = Array.isArray(state.active_hints) ? state.active_hints : 
 let guessCount = Array.isArray(state.guesses) ? state.guesses.length : 0;
 let currentRankIndex = state.rank && Number.isFinite(state.rank.index) ? state.rank.index : 0;
 let rankUpTimeoutId = null;
+let dailySubmitted = Boolean(state.daily_submitted);
 
 function formatDailyCountdown(totalSeconds) {
   const seconds = Math.max(0, Number(totalSeconds) || 0);
@@ -61,6 +69,131 @@ function getDailyCompleteMessage(outcome) {
     return `Correct. Daily solved. Next daily puzzle in ${countdown}.`;
   }
   return `Out of attempts. Daily complete. Next daily puzzle in ${countdown}.`;
+}
+
+function getModeLabel() {
+  if (mode === "skill-icon") {
+    return "Skill Icon";
+  }
+  if (mode === "voice-line") {
+    return "Voice Line";
+  }
+  return "Classic";
+}
+
+function buildDailyShareText() {
+  const solved = roundStatus === "won";
+  const attemptsUsed = Math.max(1, guessCount || (Array.isArray(state.guesses) ? state.guesses.length : 0));
+  const result = solved ? `${attemptsUsed}/5` : "X/5";
+  return `VALODLE Daily ${getModeLabel()} ${result}`;
+}
+
+function renderDailyLeaderboard(entries) {
+  if (!dailyLeaderboard) {
+    return;
+  }
+
+  const safeEntries = Array.isArray(entries) ? entries : [];
+  if (safeEntries.length === 0) {
+    dailyLeaderboard.innerHTML = "<li>No scores yet. Be the first.</li>";
+    return;
+  }
+
+  dailyLeaderboard.innerHTML = safeEntries
+    .map((entry) => {
+      const name = escapeHtml(entry.name || "Player");
+      const result = entry.solved ? `${entry.attempts}/5` : "X/5";
+      return `<li><span>${name}</span><strong>${result}</strong></li>`;
+    })
+    .join("");
+}
+
+async function refreshDailyLeaderboard() {
+  if (!isDailyMode) {
+    return;
+  }
+
+  const response = await fetch(withVariant(`${apiBase}/daily-leaderboard`));
+  const data = await response.json();
+  if (!response.ok) {
+    return;
+  }
+  renderDailyLeaderboard(data.entries || []);
+}
+
+function updateDailyShareVisibility() {
+  if (!dailyShareBox) {
+    return;
+  }
+
+  const finished = roundStatus === "won" || roundStatus === "lost";
+  const show = isDailyMode && finished;
+  dailyShareBox.classList.toggle("hidden", !show);
+  if (!show) {
+    return;
+  }
+
+  if (dailySharePreview) {
+    dailySharePreview.textContent = buildDailyShareText();
+  }
+  if (submitDailyBtn) {
+    submitDailyBtn.disabled = dailySubmitted;
+    submitDailyBtn.textContent = dailySubmitted ? "Submitted" : "Submit Score";
+  }
+}
+
+async function submitDailyScore() {
+  if (!isDailyMode || !submitDailyBtn || submitDailyBtn.disabled) {
+    return;
+  }
+
+  const name = String(dailyNameInput && dailyNameInput.value ? dailyNameInput.value : "").trim();
+  if (!name) {
+    if (dailySubmitMessage) {
+      dailySubmitMessage.textContent = "Enter a display name first.";
+    }
+    return;
+  }
+
+  const response = await fetch(withVariant(`${apiBase}/daily-submit`), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
+  });
+  const data = await response.json();
+
+  if (!response.ok) {
+    if (dailySubmitMessage) {
+      dailySubmitMessage.textContent = data.message || "Could not submit score.";
+    }
+    if (data.entries) {
+      renderDailyLeaderboard(data.entries);
+    }
+    return;
+  }
+
+  dailySubmitted = true;
+  if (dailySubmitMessage) {
+    dailySubmitMessage.textContent = data.message || "Submitted.";
+  }
+  if (data.entries) {
+    renderDailyLeaderboard(data.entries);
+  }
+  updateDailyShareVisibility();
+}
+
+async function copyDailyResult() {
+  const text = buildDailyShareText();
+  try {
+    await navigator.clipboard.writeText(text);
+    if (dailySubmitMessage) {
+      dailySubmitMessage.textContent = "Result copied to clipboard.";
+    }
+  } catch {
+    if (dailySubmitMessage) {
+      dailySubmitMessage.textContent = text;
+    }
+  }
 }
 
 function withVariant(url) {
@@ -478,6 +611,8 @@ async function submitGuess(event) {
     renderBonus(data.bonus_status || "pending");
     if (isDailyMode) {
       setMessage(getDailyCompleteMessage("won"), "match");
+      updateDailyShareVisibility();
+      refreshDailyLeaderboard();
     } else {
       const rankDelta = Number(data.rank && data.rank.delta ? data.rank.delta : 0);
       const deltaText = rankDelta > 0 ? ` +${rankDelta} RR.` : "";
@@ -503,6 +638,8 @@ async function submitGuess(event) {
     renderBonus("off");
     if (isDailyMode) {
       setMessage(getDailyCompleteMessage("lost"), "miss");
+      updateDailyShareVisibility();
+      refreshDailyLeaderboard();
     } else {
       const rankDelta = Number(data.rank && data.rank.delta ? data.rank.delta : 0);
       const deltaText = rankDelta < 0 ? ` ${rankDelta} RR.` : "";
@@ -555,6 +692,7 @@ function resetRoundUI(data, text) {
   guessList.innerHTML = "";
   guessedNames = new Set();
   guessCount = 0;
+  dailySubmitted = false;
   attemptsLeft.textContent = data.attempts_left;
   streakCount.textContent = data.streak;
   setStatus(data.status);
@@ -576,6 +714,10 @@ function resetRoundUI(data, text) {
     renderVoiceHints();
   }
   setMessage(text, "info");
+  if (dailySubmitMessage) {
+    dailySubmitMessage.textContent = "";
+  }
+  updateDailyShareVisibility();
   renderSuggestions("");
   guessInput.focus();
 }
@@ -665,6 +807,10 @@ function seedState() {
   if (isDailyMode && (state.status === "won" || state.status === "lost")) {
     setMessage(getDailyCompleteMessage(state.status), state.status === "won" ? "match" : "miss");
   }
+  updateDailyShareVisibility();
+  if (isDailyMode) {
+    refreshDailyLeaderboard();
+  }
   renderSuggestions(guessInput.value || "");
 }
 
@@ -689,6 +835,14 @@ if (backBtn) {
       window.location.href = "/";
     }
   });
+}
+
+if (submitDailyBtn) {
+  submitDailyBtn.addEventListener("click", submitDailyScore);
+}
+
+if (copyShareBtn) {
+  copyShareBtn.addEventListener("click", copyDailyResult);
 }
 
 guessInput.addEventListener("input", (event) => {

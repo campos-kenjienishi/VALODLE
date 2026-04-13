@@ -28,6 +28,10 @@ VALID_KEYBINDS = ("C", "Q", "E", "X")
 GAME_VARIANTS = {"endless", "daily"}
 ADMIN_PASSWORD = os.environ.get("VALODLE_ADMIN_PASSWORD", "valodleadmin")
 DAILY_TIMEZONE_NAME = os.environ.get("VALODLE_DAILY_TIMEZONE", "UTC")
+try:
+    DAILY_SCORES_RETENTION_DAYS = max(1, int(os.environ.get("VALODLE_DAILY_SCORES_RETENTION_DAYS", "3")))
+except ValueError:
+    DAILY_SCORES_RETENTION_DAYS = 3
 
 
 def build_icon_filename_lookup():
@@ -51,6 +55,27 @@ def ensure_data_dir():
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def _prune_daily_scores(payload):
+    if not isinstance(payload, dict):
+        return {}
+
+    cutoff = now_in_daily_timezone().date() - timedelta(days=DAILY_SCORES_RETENTION_DAYS - 1)
+    pruned = {}
+    for day_key, day_data in payload.items():
+        try:
+            parsed_day = datetime.strptime(str(day_key), "%Y-%m-%d").date()
+        except ValueError:
+            continue
+
+        if parsed_day < cutoff:
+            continue
+
+        if isinstance(day_data, dict):
+            pruned[day_key] = day_data
+
+    return pruned
+
+
 def load_daily_scores():
     ensure_data_dir()
     if not DAILY_SCORES_PATH.exists():
@@ -58,15 +83,19 @@ def load_daily_scores():
     try:
         with DAILY_SCORES_PATH.open("r", encoding="utf-8") as file:
             payload = json.load(file)
-            return payload if isinstance(payload, dict) else {}
+            normalized = _prune_daily_scores(payload)
+            if normalized != payload:
+                save_daily_scores(normalized)
+            return normalized
     except Exception:
         return {}
 
 
 def save_daily_scores(payload):
     ensure_data_dir()
+    normalized = _prune_daily_scores(payload)
     with DAILY_SCORES_PATH.open("w", encoding="utf-8") as file:
-        json.dump(payload, file, indent=2, ensure_ascii=True)
+        json.dump(normalized, file, indent=2, ensure_ascii=True)
 
 
 def get_daily_submit_key(mode, daily_key):
